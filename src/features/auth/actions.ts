@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { routing } from '@/i18n/routing'
@@ -37,13 +38,22 @@ export async function loginWithCredentials(formData: FormData) {
   }
 
   let email = identifier
-  // If it doesn't look like an email, assume it's a username and fetch the email
+  // If it doesn't look like an email, assume it's a username and resolve it.
+  // The lookup runs through the service-role client so the RPC stays revoked
+  // for anonymous callers (prevents bulk username -> email harvesting).
   if (!identifier.includes('@')) {
-    const { data, error } = await supabase.rpc('get_email_by_username', { p_username: identifier })
-    if (error || !data) {
+    let resolved: string | null = null
+    try {
+      const admin = createAdminClient()
+      const { data } = await admin.rpc('get_email_by_username', { p_username: identifier })
+      resolved = (data as string | null) ?? null
+    } catch (e) {
+      console.warn('[auth] username login unavailable — set SUPABASE_SERVICE_ROLE_KEY', e)
+    }
+    if (!resolved) {
       return { error: 'Invalid username or password.' }
     }
-    email = data
+    email = resolved
   }
 
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -174,6 +184,11 @@ export async function signup(formData: FormData) {
   }
 
   const locale = await localeFromReferer()
+  // No session means email confirmation is required — send the user to login
+  // with a notice instead of bouncing them through the protected onboarding route.
+  if (authData.user && !authData.session) {
+    redirect(`/${locale}/login?notice=confirm-email`)
+  }
   redirect(`/${locale}/onboarding`)
 }
 

@@ -25,20 +25,24 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
    ```
 
    `.env.local` is gitignored. The `NEXT_PUBLIC_SUPABASE_ANON_KEY` is meant to be
-   public — your security boundary is Row Level Security, not the key. Never put
-   a `service_role` key in a `NEXT_PUBLIC_` variable.
+   public — your security boundary is Row Level Security, not the key. Set
+   `SUPABASE_SERVICE_ROLE_KEY` (server-only, never `NEXT_PUBLIC_`) to enable
+   username login; without it, email login still works.
 
-2. Apply the database migration (RPCs, full-text-search index, username unique
-   constraint). It is idempotent:
+2. Apply the database migrations in order. They are idempotent:
 
    ```bash
-   supabase db push    # or paste supabase/migrations/0001_review_fixes.sql into the SQL editor
+   supabase db push
+   # or paste these into the SQL editor, in order:
+   #   supabase/migrations/0001_review_fixes.sql   (RPCs, FTS index, username unique)
+   #   supabase/migrations/0002_security.sql       (RLS, storage policies, view dedup)
    ```
 
    The app degrades gracefully if the RPCs are missing (stats read as 0, view
-   counts simply don't increment), but search and atomic views require it.
+   counts don't increment), but search, atomic views, and security depend on them.
 
-3. Review the RLS / Storage checklist at the bottom of the migration file.
+3. `0002_security.sql` enables RLS and adds policies — verify each one matches
+   your schema (e.g. tighten the public `portfolios` SELECT to published rows).
 
 ## Scripts
 

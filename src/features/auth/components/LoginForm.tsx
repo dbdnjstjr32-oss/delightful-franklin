@@ -9,8 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-export function LoginForm() {
-  const [error, setError] = useState<string | null>(null)
+const QUERY_ERRORS: Record<string, string> = {
+  auth_failed: 'Sign-in failed. Please try again.',
+}
+const QUERY_NOTICES: Record<string, string> = {
+  'confirm-email': 'Check your email to confirm your account, then sign in.',
+}
+
+export function LoginForm({ notice, initialError }: { notice?: string; initialError?: string }) {
+  const [error, setError] = useState<string | null>(
+    initialError ? QUERY_ERRORS[initialError] ?? null : null
+  )
+  const noticeMessage = notice ? QUERY_NOTICES[notice] : undefined
   const [isPending, startTransition] = useTransition()
   const params = useParams()
   const locale = params.locale as string
@@ -48,6 +58,11 @@ export function LoginForm() {
       </CardHeader>
       <CardContent className="px-8 pb-8">
         <form action={handleSubmit} className="space-y-5">
+          {noticeMessage && (
+            <div role="status" className="p-3 text-sm text-foreground bg-primary/10 rounded-lg text-center border border-primary/20 font-medium">
+              {noticeMessage}
+            </div>
+          )}
           <div className="space-y-2.5">
             <Label htmlFor="identifier" className="text-sm font-medium">Username or Email</Label>
             <Input 

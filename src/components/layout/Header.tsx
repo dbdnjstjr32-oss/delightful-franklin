@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Globe, Upload, User, LayoutDashboard, LogOut } from 'lucide-react'
 import { signOut } from '@/features/auth/actions'
+import { usePathname, useRouter } from '@/i18n/routing'
 
 const LOCALES = [
   { code: 'ko', label: '한국어' },
@@ -27,10 +28,36 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
   const [langOpen, setLangOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { scrollY } = useScroll()
+  const pathname = usePathname()
+  const router = useRouter()
+  const langRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 20)
   })
+
+  // Close the dropdowns on outside click or Escape.
+  useEffect(() => {
+    if (!langOpen && !menuOpen) return
+    function onPointerDown(e: PointerEvent) {
+      const target = e.target as Node
+      if (langRef.current && !langRef.current.contains(target)) setLangOpen(false)
+      if (menuRef.current && !menuRef.current.contains(target)) setMenuOpen(false)
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setLangOpen(false)
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [langOpen, menuOpen])
 
   const displayName = user?.displayName || user?.username || 'Creator'
 
@@ -72,7 +99,7 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
         {/* Right Actions */}
         <div className="flex items-center gap-3">
           {/* Language Switcher */}
-          <div className="relative">
+          <div className="relative" ref={langRef}>
             <button
               onClick={() => setLangOpen(!langOpen)}
               className="flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors px-2 py-1.5 rounded-md hover:bg-secondary"
@@ -85,16 +112,20 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
             {langOpen && (
               <div className="absolute right-0 top-full mt-2 w-36 bg-card border border-border rounded-xl shadow-lg py-1 overflow-hidden">
                 {LOCALES.map((l) => (
-                  <a
+                  <button
                     key={l.code}
-                    href={`/${l.code}`}
-                    onClick={() => setLangOpen(false)}
-                    className={`block px-4 py-2 text-sm transition-colors hover:bg-secondary ${
+                    type="button"
+                    onClick={() => {
+                      // Keep the current page; just swap the locale.
+                      router.replace(pathname, { locale: l.code })
+                      setLangOpen(false)
+                    }}
+                    className={`block w-full text-left px-4 py-2 text-sm transition-colors hover:bg-secondary ${
                       l.code === locale ? 'text-primary font-medium' : 'text-foreground'
                     }`}
                   >
                     {l.label}
-                  </a>
+                  </button>
                 ))}
               </div>
             )}
@@ -113,7 +144,7 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
 
           {/* Auth area */}
           {user ? (
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
                 className="w-8 h-8 rounded-full bg-secondary overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-primary/30 transition-all"

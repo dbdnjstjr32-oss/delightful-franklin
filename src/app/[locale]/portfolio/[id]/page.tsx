@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { after } from 'next/server'
+import { headers } from 'next/headers'
+import { createHash } from 'node:crypto'
 import type { Metadata } from 'next'
 import { PortfolioHero } from '@/features/portfolio/PortfolioHero'
 import { PortfolioStory } from '@/features/portfolio/PortfolioStory'
@@ -51,12 +53,17 @@ export default async function PortfolioDetailPage({ params }: Props) {
 
   // Increment view count after the response is sent, atomically in the DB.
   // `after` keeps it off the render path; the RPC avoids the lost-update race
-  // of read-then-write. The client is created HERE (during render) — calling
-  // cookies()/createClient() inside the `after` callback of a Server Component
-  // throws, so we capture it first and only run the RPC in the callback.
+  // of read-then-write and dedups by viewer/day to blunt scripted inflation.
+  // Request APIs (cookies/headers) must be read HERE during render — calling
+  // them inside the `after` callback of a Server Component throws — so we
+  // capture the client and a viewer fingerprint first.
   const supabase = await createClient()
+  const hdrs = await headers()
+  const ip = (hdrs.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown'
+  const ua = hdrs.get('user-agent') ?? ''
+  const viewer = createHash('sha256').update(`${ip}|${ua}`).digest('hex').slice(0, 32)
   after(async () => {
-    await supabase.rpc('increment_portfolio_views', { p_id: id })
+    await supabase.rpc('increment_portfolio_views', { p_id: id, p_viewer: viewer })
   })
 
   const tags =
