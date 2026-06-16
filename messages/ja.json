@@ -1,0 +1,35 @@
+{
+  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト" },
+  "hero": {
+    "line1": "Create.",
+    "line2": "Publish.",
+    "line3": "Be Discovered.",
+    "sub": "デザイナー、開発者、3Dアーティスト、映像クリエイターのための作品展示プラットフォーム。",
+    "cta_upload": "作品をアップロード",
+    "cta_explore": "探索する"
+  },
+  "sections": {
+    "featured": "おすすめ作品",
+    "trending": "急上昇",
+    "new_creators": "新着クリエイター",
+    "categories": "カテゴリー",
+    "cta_title": "あなたの作品を世界に届けましょう。",
+    "cta_sub": "無料で始められます。",
+    "cta_button": "無料で始める"
+  },
+  "categories": {
+    "development": "開発",
+    "design": "デザイン",
+    "3d": "3D",
+    "video": "動画",
+    "photography": "写真",
+    "writing": "ライティング",
+    "music": "音楽"
+  },
+  "profile": {
+    "total_views": "総閲覧数",
+    "total_appreciations": "総評価数",
+    "projects": "プロジェクト",
+    "no_portfolio": "まだ作品がありません。"
+  }
+}

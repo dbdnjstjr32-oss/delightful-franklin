@@ -1,0 +1,35 @@
+{
+  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión" },
+  "hero": {
+    "line1": "Crea.",
+    "line2": "Publica.",
+    "line3": "Sé Descubierto.",
+    "sub": "El hogar para diseñadores, desarrolladores, artistas 3D, cineastas y todo tipo de creativos.",
+    "cta_upload": "Sube tu trabajo",
+    "cta_explore": "Explorar"
+  },
+  "sections": {
+    "featured": "Trabajos Destacados",
+    "trending": "Tendencias",
+    "new_creators": "Nuevos Creadores",
+    "categories": "Categorías",
+    "cta_title": "Tu trabajo merece ser visto.",
+    "cta_sub": "Empieza gratis. Publica en minutos.",
+    "cta_button": "Comenzar gratis"
+  },
+  "categories": {
+    "development": "Desarrollo",
+    "design": "Diseño",
+    "3d": "3D",
+    "video": "Video",
+    "photography": "Fotografía",
+    "writing": "Escritura",
+    "music": "Música"
+  },
+  "profile": {
+    "total_views": "Vistas Totales",
+    "total_appreciations": "Apreciaciones Totales",
+    "projects": "Proyectos",
+    "no_portfolio": "Sin portafolios aún."
+  }
+}
