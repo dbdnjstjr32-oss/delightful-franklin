@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "explore": "Explore",
+    "creators": "Creators",
+    "upload": "Upload",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "hero": {
+    "line1": "Create.",
+    "line2": "Publish.",
+    "line3": "Be Discovered.",
+    "sub": "The home for designers, developers, 3D artists, filmmakers, and every creator in between.",
+    "cta_upload": "Upload Your Work",
+    "cta_explore": "Explore"
+  },
+  "sections": {
+    "featured": "Featured Works",
+    "trending": "Trending",
+    "new_creators": "New Creators",
+    "categories": "Categories",
+    "cta_title": "Your work deserves to be seen.",
+    "cta_sub": "Start for free. Publish in minutes.",
+    "cta_button": "Get Started — It's Free"
+  },
+  "categories": {
+    "development": "Development",
+    "design": "Design",
+    "3d": "3D",
+    "video": "Video",
+    "photography": "Photography",
+    "writing": "Writing",
+    "music": "Music"
+  },
+  "profile": {
+    "total_views": "Total Views",
+    "total_appreciations": "Total Appreciations",
+    "projects": "Projects",
+    "no_portfolio": "No portfolios yet."
+  }
+}
