@@ -10,6 +10,7 @@ import { PortfolioHero } from '@/features/portfolio/PortfolioHero'
 import { PortfolioStory } from '@/features/portfolio/PortfolioStory'
 import { CreatorCard } from '@/features/portfolio/CreatorCard'
 import { PortfolioJsonLd } from '@/components/seo/PortfolioJsonLd'
+import { LikeButton } from '@/features/portfolio/components/LikeButton'
 import { getPortfolioById } from '@/features/portfolio/data'
 
 type Props = {
@@ -80,6 +81,17 @@ export default async function PortfolioDetailPage({ params }: Props) {
   } = await supabase.auth.getUser()
   const isOwner = !!user && user.id === portfolio.user_id
 
+  let initialLiked = false
+  if (user) {
+    const { data: likeRow } = await supabase
+      .from('portfolio_likes')
+      .select('portfolio_id')
+      .eq('portfolio_id', id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    initialLiked = !!likeRow
+  }
+
   return (
     <div className="pt-16">
       <PortfolioJsonLd
@@ -102,7 +114,19 @@ export default async function PortfolioDetailPage({ params }: Props) {
           </Link>
         </div>
       )}
-      <PortfolioHero portfolio={portfolio} tags={tags} locale={locale} />
+      <PortfolioHero
+        portfolio={portfolio}
+        tags={tags}
+        locale={locale}
+        likeControl={
+          <LikeButton
+            portfolioId={portfolio.id}
+            initialLiked={initialLiked}
+            initialCount={portfolio.likes ?? 0}
+            isAuthed={!!user}
+          />
+        }
+      />
       <PortfolioStory portfolio={portfolio} />
       <CreatorCard profile={profile} locale={locale} />
     </div>

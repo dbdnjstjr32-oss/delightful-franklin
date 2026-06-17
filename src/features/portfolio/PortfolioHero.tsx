@@ -18,9 +18,10 @@ interface Props {
   }
   tags: string[]
   locale: string
+  likeControl?: React.ReactNode
 }
 
-export function PortfolioHero({ portfolio, tags, locale }: Props) {
+export function PortfolioHero({ portfolio, tags, locale, likeControl }: Props) {
   const formattedDate = new Date(portfolio.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   })
@@ -77,10 +78,12 @@ export function PortfolioHero({ portfolio, tags, locale }: Props) {
               <Eye size={15} />
               <span>{portfolio.views.toLocaleString()} views</span>
             </div>
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Heart size={15} />
-              <span>{portfolio.likes.toLocaleString()} appreciations</span>
-            </div>
+            {likeControl ?? (
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Heart size={15} />
+                <span>{portfolio.likes.toLocaleString()} appreciations</span>
+              </div>
+            )}
             <span className="text-sm text-muted-foreground">{formattedDate}</span>
 
             {portfolio.project_url && (

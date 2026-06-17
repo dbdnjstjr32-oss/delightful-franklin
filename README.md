@@ -34,9 +34,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
    ```bash
    supabase db push
    # or paste these into the SQL editor, in order:
-   #   supabase/migrations/0001_review_fixes.sql   (RPCs, FTS index, username unique)
-   #   supabase/migrations/0002_security.sql       (RLS, storage policies, view dedup)
-   #   supabase/migrations/0003_portfolio_crud.sql (portfolios bucket, tags, CRUD RPCs)
+   #   supabase/migrations/0001_review_fixes.sql    (RPCs, FTS index, username unique)
+   #   supabase/migrations/0002_security.sql        (RLS, storage policies, view dedup)
+   #   supabase/migrations/0003_likes_system.sql    (portfolio_likes table, toggle_like RPC)
+   #   supabase/migrations/0004_portfolio_crud.sql  (portfolios bucket, tags, CRUD RPCs)
    ```
 
    The app degrades gracefully if the RPCs are missing (stats read as 0, view
