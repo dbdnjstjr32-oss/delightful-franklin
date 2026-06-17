@@ -31,28 +31,30 @@ export default async function ExplorePage({ params, searchParams }: Props) {
   const { tab = 'latest', category, q } = await searchParams
   const supabase = await createClient()
 
-  // Latest
-  const { data: latest } = await supabase
-    .from('portfolios')
-    .select(PORTFOLIO_CARD_COLUMNS)
-    .order('created_at', { ascending: false })
-    .limit(24)
-
-  // Trending (likes desc as proxy for trending score)
-  const { data: trending } = await supabase
-    .from('portfolios')
-    .select(PORTFOLIO_CARD_COLUMNS)
-    .order('likes', { ascending: false })
-    .order('views', { ascending: false })
-    .limit(24)
-
-  // New Creators (with ≥1 portfolio)
-  const { data: rawCreators } = await supabase
-    .from('profiles')
-    .select('*, portfolios(count)')
-    .not('username', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(40)
+  // Fetch all initial data in parallel to prevent sequential waterfall bottlenecks
+  const [
+    { data: latest },
+    { data: trending },
+    { data: rawCreators }
+  ] = await Promise.all([
+    supabase
+      .from('portfolios')
+      .select(PORTFOLIO_CARD_COLUMNS)
+      .order('created_at', { ascending: false })
+      .limit(24),
+    supabase
+      .from('portfolios')
+      .select(PORTFOLIO_CARD_COLUMNS)
+      .order('likes', { ascending: false })
+      .order('views', { ascending: false })
+      .limit(24),
+    supabase
+      .from('profiles')
+      .select('*, portfolios(count)')
+      .not('username', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(40)
+  ])
   const newCreators = (rawCreators ?? []).filter(
     (p: { portfolios: { count: number }[] }) => p.portfolios?.[0]?.count >= 1
   ).slice(0, 24)

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { after } from 'next/server'
 import { headers } from 'next/headers'
 import { createHash } from 'node:crypto'
+import Link from 'next/link'
+import { Pencil } from 'lucide-react'
 import type { Metadata } from 'next'
 import { PortfolioHero } from '@/features/portfolio/PortfolioHero'
 import { PortfolioStory } from '@/features/portfolio/PortfolioStory'
@@ -73,6 +75,11 @@ export default async function PortfolioDetailPage({ params }: Props) {
 
   const profile = Array.isArray(portfolio.profiles) ? portfolio.profiles[0] : portfolio.profiles
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const isOwner = !!user && user.id === portfolio.user_id
+
   return (
     <div className="pt-16">
       <PortfolioJsonLd
@@ -84,6 +91,17 @@ export default async function PortfolioDetailPage({ params }: Props) {
         locale={locale}
         creator={profile}
       />
+      {isOwner && (
+        <div className="max-w-4xl mx-auto px-6 pt-4 flex justify-end">
+          <Link
+            href={`/${locale}/portfolio/${portfolio.id}/edit`}
+            className="flex items-center gap-1.5 text-sm font-medium bg-secondary text-foreground px-4 py-2 rounded-full hover:bg-accent transition-colors"
+          >
+            <Pencil size={14} />
+            Edit
+          </Link>
+        </div>
+      )}
       <PortfolioHero portfolio={portfolio} tags={tags} locale={locale} />
       <PortfolioStory portfolio={portfolio} />
       <CreatorCard profile={profile} locale={locale} />

@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { routing } from '@/i18n/routing'
 
-const ALLOWED_AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+const ALLOWED_AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024 // 5MB
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/
 
@@ -228,19 +228,49 @@ export async function updateOnboardingProfile(formData: FormData) {
   let avatar_url: string | undefined = undefined
 
   if (avatarFile && avatarFile.size > 0) {
-    if (!ALLOWED_AVATAR_TYPES.includes(avatarFile.type)) {
-      return { error: 'Avatar must be a PNG, JPEG, WebP, or GIF image.' }
-    }
+    // 1. Validate max size
     if (avatarFile.size > MAX_AVATAR_BYTES) {
       return { error: 'Avatar must be 5MB or smaller.' }
     }
 
+    // 2. Validate MIME type string
+    if (!ALLOWED_AVATAR_TYPES.includes(avatarFile.type)) {
+      return { error: 'Avatar must be a PNG, JPEG, or WebP image.' }
+    }
+
+    // 3. Magic-number validation
+    const buffer = await avatarFile.arrayBuffer()
+    const arr = new Uint8Array(buffer).subarray(0, 4)
+    const header = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase()
+
+    let isValidMagic = false
+    let detectedExt = ''
+    if (header.startsWith('FFD8FF')) { 
+      isValidMagic = true; detectedExt = 'jpg' 
+    } else if (header === '89504E47') { 
+      isValidMagic = true; detectedExt = 'png' 
+    } else if (header === '52494646') { 
+      const webpBuffer = new Uint8Array(buffer).subarray(8, 12)
+      const webpHeader = Array.from(webpBuffer).map(b => String.fromCharCode(b)).join('')
+      if (webpHeader === 'WEBP') { isValidMagic = true; detectedExt = 'webp' }
+    }
+
+    if (!isValidMagic) {
+      return { error: 'Invalid image format detected (magic number mismatch).' }
+    }
+
+    // Ensure extension matches MIME type roughly
     const ext = (avatarFile.type.split('/')[1] || 'png').replace('jpeg', 'jpg')
-    // user-id-prefixed path so storage RLS can scope writes per user.
-    const fileName = `${user.id}/${crypto.randomUUID()}.${ext}`
+    if (ext !== detectedExt) {
+      return { error: 'MIME type does not match file content.' }
+    }
+
+    // 4. UUID filename generation
+    const fileName = `${user.id}/${crypto.randomUUID()}.${detectedExt}`
+    
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(fileName, avatarFile, { contentType: avatarFile.type, upsert: false })
+      .upload(fileName, buffer, { contentType: avatarFile.type, upsert: false })
 
     if (uploadError) {
       return { error: 'Error uploading avatar: ' + uploadError.message }

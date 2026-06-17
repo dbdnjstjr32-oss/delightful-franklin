@@ -14,27 +14,29 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params
   const supabase = await createClient()
 
-  // Featured portfolios (editor picked)
-  const { data: featured } = await supabase
-    .from('portfolios')
-    .select(PORTFOLIO_CARD_COLUMNS)
-    .eq('featured', true)
-    .limit(6)
-
-  // Trending portfolios (simplified: order by likes + views as proxy)
-  const { data: trending } = await supabase
-    .from('portfolios')
-    .select(PORTFOLIO_CARD_COLUMNS)
-    .order('likes', { ascending: false })
-    .order('views', { ascending: false })
-    .limit(6)
-
-  // New creators with at least 1 portfolio
-  const { data: newCreators } = await supabase
-    .from('profiles')
-    .select('*, portfolios(count)')
-    .order('created_at', { ascending: false })
-    .limit(8)
+  // Fetch all initial data in parallel to prevent sequential waterfall bottlenecks
+  const [
+    { data: featured },
+    { data: trending },
+    { data: newCreators }
+  ] = await Promise.all([
+    supabase
+      .from('portfolios')
+      .select(PORTFOLIO_CARD_COLUMNS)
+      .eq('featured', true)
+      .limit(6),
+    supabase
+      .from('portfolios')
+      .select(PORTFOLIO_CARD_COLUMNS)
+      .order('likes', { ascending: false })
+      .order('views', { ascending: false })
+      .limit(6),
+    supabase
+      .from('profiles')
+      .select('*, portfolios(count)')
+      .order('created_at', { ascending: false })
+      .limit(8)
+  ])
 
   // Filter to only those with at least 1 portfolio
   const filteredNewCreators = (newCreators ?? []).filter(
