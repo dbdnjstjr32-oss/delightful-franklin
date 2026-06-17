@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { routing } from '@/i18n/routing'
+import { logger } from '@/lib/logger'
 
 const ALLOWED_AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024 // 5MB
@@ -48,7 +49,9 @@ export async function loginWithCredentials(formData: FormData) {
       const { data } = await admin.rpc('get_email_by_username', { p_username: identifier })
       resolved = (data as string | null) ?? null
     } catch (e) {
-      console.warn('[auth] username login unavailable — set SUPABASE_SERVICE_ROLE_KEY', e)
+      logger.warn('username login unavailable; set SUPABASE_SERVICE_ROLE_KEY', {
+        error: e instanceof Error ? e.message : String(e),
+      })
     }
     if (!resolved) {
       return { error: 'Invalid username or password.' }
