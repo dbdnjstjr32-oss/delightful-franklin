@@ -55,8 +55,22 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | `npm run lint`     | ESLint                                |
 | `npm run typecheck`| `tsc --noEmit`                        |
 | `npm run test:e2e` | Playwright smoke tests (needs `.env.local`; run `npx playwright install` once) |
+| `npm run test:rls` | RLS integration test — proves policies deny cross-user writes |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, and build on every push/PR.
+
+## Security verification
+
+- **Headers/CSP**: every response carries HSTS, `X-Frame-Options: DENY`,
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, plus a
+  per-request **nonce-based** `Content-Security-Policy` (script-src locked to the
+  nonce + `strict-dynamic`). Verify after `npm run build && npm start` with
+  `curl -I http://localhost:3000/en`.
+- **RLS**: run `npm run test:rls` against a **staging** project. It creates two
+  throwaway users and asserts that cross-user UPDATE/DELETE, anonymous mutations,
+  and unauthenticated `toggle_like` are all rejected, then cleans up. Requires
+  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and
+  `SUPABASE_SERVICE_ROLE_KEY` in the environment.
 
 ## Notes for this Next.js version
 
