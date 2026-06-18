@@ -30,11 +30,16 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
-    // First-party uploads only — cover images/avatars live in Supabase Storage.
-    // The previous '**' wildcard turned the image optimizer into an open proxy.
-    remotePatterns: supabaseHost
-      ? [{ protocol: 'https', hostname: supabaseHost }]
-      : [{ protocol: 'https', hostname: '*.supabase.co' }],
+    // Cover images / uploaded avatars live in Supabase Storage. The previous
+    // '**' wildcard turned the image optimizer into an open proxy; we allow only
+    // the specific trusted hosts instead.
+    remotePatterns: [
+      supabaseHost
+        ? { protocol: 'https' as const, hostname: supabaseHost }
+        : { protocol: 'https' as const, hostname: '*.supabase.co' },
+      // Google account avatars for OAuth sign-ins (lh3..lh6.googleusercontent.com).
+      { protocol: 'https' as const, hostname: '*.googleusercontent.com' },
+    ],
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
