@@ -1,17 +1,16 @@
 // Demo seed: creates a handful of artists with varied works so the site looks
-// populated. Self-contained — it creates the storage buckets, creates auth
-// users, uploads avatars/cover images to Supabase Storage (so next/image's
-// tightened remotePatterns keeps working), and inserts portfolios + tags +
-// view/like counts.
+// populated. Self-contained — creates storage buckets, creates auth users,
+// uploads avatars + CATEGORY-MATCHED cover images to Supabase Storage (so
+// next/image's tightened remotePatterns keeps working), and inserts portfolios
+// + tags + view/like counts.
 //
 // Run:  node supabase/seed.mjs        (or `npm run seed`)
 // Needs in .env.local:
 //   NEXT_PUBLIC_SUPABASE_URL
 //   SUPABASE_SERVICE_ROLE_KEY   <- Dashboard → Project Settings → API → service_role
 //
-// Re-runnable: it upserts by a stable seed email/username and skips images that
-// already exist. Writes to the project in NEXT_PUBLIC_SUPABASE_URL — point it at
-// staging if you don't want demo rows in production.
+// Idempotent: re-running deletes each demo artist's existing works and re-seeds,
+// so cover images / categories update cleanly without duplicating rows.
 
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
@@ -26,14 +25,7 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!url || !serviceKey) {
-  console.error(`
-Missing SUPABASE_SERVICE_ROLE_KEY (or URL).
-
-Add to .env.local:
-  SUPABASE_SERVICE_ROLE_KEY=<service_role key from Dashboard → Project Settings → API>
-
-This key bypasses RLS — keep it server-only, never NEXT_PUBLIC_.
-`)
+  console.error('\nMissing SUPABASE_SERVICE_ROLE_KEY (or URL). Add it to .env.local.\n')
   process.exit(2)
 }
 
@@ -43,7 +35,18 @@ const admin = createClient(url, serviceKey, {
 
 const PASSWORD = 'DemoArtist!2026'
 
-// ---- demo content -----------------------------------------------------------
+// Topical cover images per category (keyword-based so they always match).
+const CATEGORY_KEYWORDS = {
+  development: 'code,programming,screen',
+  design: 'ui,design,interface',
+  '3d': '3d,render,abstract',
+  video: 'film,cinema,camera',
+  photography: 'photography,landscape',
+  writing: 'writing,book,desk',
+  music: 'music,studio,sound',
+}
+
+// ---- demo content (categories restricted to the app's valid set) ------------
 const ARTISTS = [
   {
     username: 'yujin_motion', display_name: '유진 Yujin', avatar: 12,
@@ -51,7 +54,7 @@ const ARTISTS = [
     works: [
       { title: 'Aurora — Title Sequence', category: 'video', img: 'aurora', tags: ['motion', 'title', 'aftereffects'], featured: true, views: 18420, likes: 1203 },
       { title: 'Liquid Type Study', category: '3d', img: 'liquidtype', tags: ['3d', 'type', 'houdini'], views: 9210, likes: 642 },
-      { title: 'Neon Drive — Loop', category: 'motion', img: 'neondrive', tags: ['loop', 'neon'], views: 5120, likes: 318 },
+      { title: 'Neon Drive — Loop', category: 'video', img: 'neondrive', tags: ['loop', 'neon'], views: 5120, likes: 318 },
     ],
   },
   {
@@ -111,15 +114,19 @@ const ARTISTS = [
 // ---- helpers ----------------------------------------------------------------
 async function ensureBucket(id) {
   const { error } = await admin.storage.createBucket(id, { public: true })
-  if (error && !/already exists/i.test(error.message)) {
-    console.warn(`  bucket ${id}: ${error.message}`)
-  }
+  if (error && !/already exists/i.test(error.message)) console.warn(`  bucket ${id}: ${error.message}`)
 }
 
 async function fetchImage(u) {
-  const res = await fetch(u, { redirect: 'follow' })
-  if (!res.ok) throw new Error(`fetch ${res.status}`)
-  return Buffer.from(await res.arrayBuffer())
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), 12000)
+  try {
+    const res = await fetch(u, { redirect: 'follow', signal: ctrl.signal })
+    if (!res.ok) throw new Error(`fetch ${res.status}`)
+    return Buffer.from(await res.arrayBuffer())
+  } finally {
+    clearTimeout(t)
+  }
 }
 
 async function uploadImage(bucket, path, buffer) {
@@ -130,17 +137,17 @@ async function uploadImage(bucket, path, buffer) {
   return admin.storage.from(bucket).getPublicUrl(path).data.publicUrl
 }
 
+function lockFor(s) {
+  return [...s].reduce((a, c) => a + c.charCodeAt(0), 0)
+}
+
 async function getOrCreateUser(email, displayName) {
   const created = await admin.auth.admin.createUser({
-    email,
-    password: PASSWORD,
-    email_confirm: true,
+    email, password: PASSWORD, email_confirm: true,
     user_metadata: { full_name: displayName },
   })
   if (!created.error) return created.data.user.id
-
   if (/already.*registered|already exists/i.test(created.error.message)) {
-    // Find the existing user by paging the admin list.
     for (let page = 1; page <= 20; page++) {
       const { data } = await admin.auth.admin.listUsers({ page, perPage: 200 })
       const hit = data.users.find((u) => u.email === email)
@@ -149,6 +156,15 @@ async function getOrCreateUser(email, displayName) {
     }
   }
   throw new Error(created.error.message)
+}
+
+async function clearWorks(userId) {
+  const { data: existing } = await admin.from('portfolios').select('id').eq('user_id', userId)
+  const ids = (existing ?? []).map((r) => r.id)
+  if (!ids.length) return
+  await admin.from('portfolio_tags').delete().in('portfolio_id', ids)
+  try { await admin.from('portfolio_likes').delete().in('portfolio_id', ids) } catch { /* table may not exist */ }
+  await admin.from('portfolios').delete().eq('user_id', userId)
 }
 
 async function tagIds(names) {
@@ -192,55 +208,50 @@ async function main() {
         website: a.website,
         ...(avatar_url ? { avatar_url } : {}),
       })
-      if (pErr) {
-        console.warn(`  profile ${a.username}: ${pErr.message}`)
-        continue
-      }
+      if (pErr) { console.warn(`  profile ${a.username}: ${pErr.message}`); continue }
       artists++
       console.log(`✓ artist ${a.display_name} (@${a.username})`)
+
+      // Idempotent: wipe prior works so covers/categories refresh without dupes.
+      await clearWorks(userId)
 
       for (const w of a.works) {
         let thumbnail_url = null
         try {
-          const buf = await fetchImage(`https://picsum.photos/seed/${w.img}/1200/800`)
+          const kw = CATEGORY_KEYWORDS[w.category] || 'abstract'
+          const buf = await fetchImage(`https://loremflickr.com/1200/800/${kw}?lock=${lockFor(w.img)}`)
           thumbnail_url = await uploadImage('portfolios', `${userId}/${w.img}.jpg`, buf)
         } catch (e) {
-          console.warn(`    thumb ${w.title}: ${e.message}`)
+          console.warn(`    thumb ${w.title}: ${e.message} (using fallback)`)
         }
 
-        const row = {
-          user_id: userId,
-          title: w.title,
-          description: `${w.title} — a ${w.category} piece by ${a.display_name}.`,
-          category: w.category,
-          project_url: a.website,
-          views: w.views ?? 0,
-          likes: w.likes ?? 0,
-          featured: !!w.featured,
-          ...(thumbnail_url ? { thumbnail_url } : {}),
-        }
         const { data: ins, error: wErr } = await admin
           .from('portfolios')
-          .insert(row)
+          .insert({
+            user_id: userId,
+            title: w.title,
+            description: `${w.title} — a ${w.category} piece by ${a.display_name}.`,
+            category: w.category,
+            project_url: a.website,
+            views: w.views ?? 0,
+            likes: w.likes ?? 0,
+            featured: !!w.featured,
+            ...(thumbnail_url ? { thumbnail_url } : {}),
+          })
           .select('id')
           .single()
-        if (wErr) {
-          console.warn(`    work "${w.title}": ${wErr.message}`)
-          continue
-        }
+        if (wErr) { console.warn(`    work "${w.title}": ${wErr.message}`); continue }
         works++
 
         try {
           const ids = await tagIds(w.tags ?? [])
           if (ids.length) {
-            await admin
-              .from('portfolio_tags')
-              .upsert(ids.map((tag_id) => ({ portfolio_id: ins.id, tag_id })))
+            await admin.from('portfolio_tags').upsert(ids.map((tag_id) => ({ portfolio_id: ins.id, tag_id })))
           }
         } catch (e) {
           console.warn(`    tags "${w.title}": ${e.message}`)
         }
-        console.log(`    • ${w.title} [${w.category}]`)
+        console.log(`    • ${w.title} [${w.category}]${thumbnail_url ? '' : ' (fallback cover)'}`)
       }
     } catch (e) {
       console.warn(`✗ artist ${a.username}: ${e.message}`)

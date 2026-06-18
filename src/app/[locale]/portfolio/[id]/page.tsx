@@ -12,6 +12,7 @@ import { CreatorCard } from '@/features/portfolio/CreatorCard'
 import { PortfolioJsonLd } from '@/components/seo/PortfolioJsonLd'
 import { LikeButton } from '@/features/portfolio/components/LikeButton'
 import { getPortfolioById } from '@/features/portfolio/data'
+import { translateAll } from '@/lib/translate'
 
 type Props = {
   params: Promise<{ locale: string; id: string }>
@@ -92,6 +93,11 @@ export default async function PortfolioDetailPage({ params }: Props) {
     initialLiked = !!likeRow
   }
 
+  // Localize creator-authored text for the current locale (no-op for the source
+  // language; falls back to the original on any failure).
+  const [tTitle, tDescription] = await translateAll([portfolio.title, portfolio.description], locale)
+  const localizedPortfolio = { ...portfolio, title: tTitle, description: tDescription }
+
   return (
     <div className="pt-16">
       <PortfolioJsonLd
@@ -115,7 +121,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         </div>
       )}
       <PortfolioHero
-        portfolio={portfolio}
+        portfolio={localizedPortfolio}
         tags={tags}
         locale={locale}
         likeControl={
@@ -127,7 +133,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
           />
         }
       />
-      <PortfolioStory portfolio={portfolio} />
+      <PortfolioStory portfolio={localizedPortfolio} />
       <CreatorCard profile={profile} locale={locale} />
     </div>
   )

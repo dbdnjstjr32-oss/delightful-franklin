@@ -9,6 +9,7 @@ import {
   getProfilePortfolios,
   getProfileStats,
 } from '@/features/profile/data'
+import { translateText } from '@/lib/translate'
 
 type Props = { params: Promise<{ locale: string; username: string }> }
 
@@ -59,6 +60,12 @@ export default async function UserProfilePage({ params }: Props) {
     getProfileStats(profile.id),
   ])
 
+  // Localize creator-authored text (bio + work titles) for the current locale.
+  const [localizedBio, localizedPortfolios] = await Promise.all([
+    translateText(profile.bio, locale),
+    Promise.all(portfolios.map(async (p) => ({ ...p, title: await translateText(p.title, locale) }))),
+  ])
+
   return (
     <div className="pt-16">
       <ProfileJsonLd
@@ -70,13 +77,13 @@ export default async function UserProfilePage({ params }: Props) {
         locale={locale}
         projectCount={stats.projectCount}
       />
-      <ProfileHero profile={profile} />
+      <ProfileHero profile={{ ...profile, bio: localizedBio }} />
       <ProfileStats
         totalViews={stats.totalViews}
         totalAppreciations={stats.totalAppreciations}
         projectCount={stats.projectCount}
       />
-      <ProfilePortfolioGrid portfolios={portfolios} locale={locale} username={username} />
+      <ProfilePortfolioGrid portfolios={localizedPortfolios} locale={locale} username={username} />
     </div>
   )
 }
