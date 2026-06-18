@@ -7,7 +7,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Globe, Upload, User, LayoutDashboard, LogOut } from 'lucide-react'
 import { signOut } from '@/features/auth/actions'
-import { usePathname, useRouter } from '@/i18n/routing'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { routing } from '@/i18n/routing'
 
 const LOCALES = [
   { code: 'ko', label: '한국어' },
@@ -29,9 +30,23 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
   const [menuOpen, setMenuOpen] = useState(false)
   const { scrollY } = useScroll()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const router = useRouter()
   const langRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Swap only the locale segment of the current path (locale-prefix aware), so
+  // switching never stacks locales (e.g. /en + ja must become /ja, not /ja/en).
+  function switchLocale(code: string) {
+    const segments = pathname.split('/')
+    const rest = routing.locales.includes(segments[1] as (typeof routing.locales)[number])
+      ? '/' + segments.slice(2).join('/')
+      : pathname
+    const base = rest === '/' ? `/${code}` : `/${code}${rest}`
+    const qs = searchParams.toString()
+    router.push(qs ? `${base}?${qs}` : base)
+    setLangOpen(false)
+  }
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 20)
@@ -115,11 +130,7 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
                   <button
                     key={l.code}
                     type="button"
-                    onClick={() => {
-                      // Keep the current page; just swap the locale.
-                      router.replace(pathname, { locale: l.code })
-                      setLangOpen(false)
-                    }}
+                    onClick={() => switchLocale(l.code)}
                     className={`block w-full text-left px-4 py-2 text-sm transition-colors hover:bg-secondary ${
                       l.code === locale ? 'text-primary font-medium' : 'text-foreground'
                     }`}
