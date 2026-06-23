@@ -1,17 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# delightful-franklin
+
+A **multilingual creator platform** — a showcase space where designers, developers, 3D artists, and video creators upload their work and get discovered. *“Create. Publish. Be Discovered.”*
+
+## Frontend highlights
+
+- **Internationalization** with `next-intl` — four fully translated locales (English · 한국어 · 日本語 · Español) served via `[locale]` routing
+- **Authentication** with Supabase SSR (email + username sign-in), where **Row Level Security** — not the anon key — is the security boundary
+- **Hardened by default** — per-request **nonce-based CSP** plus HSTS, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy` on every response
+- **Next.js 16 (App Router) + React 19 + TypeScript**, styled with **Tailwind CSS v4 + shadcn/ui + Base UI + Radix** and animated with **Framer Motion**
+- **Tested** — Playwright end-to-end specs and a dedicated RLS policy suite, run in CI on every push
+
+## Tech stack
+
+Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui · @base-ui/react · Framer Motion · Supabase (SSR + RLS) · next-intl · Playwright
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -59,6 +66,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, and build on every push/PR.
 
+## Internationalization
+
+Translations live in `messages/{en,ko,ja,es}.json` and load per-route through the
+`[locale]` segment, so adding a language is a matter of adding one message file.
+
 ## Security verification
 
 - **Headers/CSP**: every response carries HSTS, `X-Frame-Options: DENY`,
@@ -75,21 +87,6 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, and build on every push/PR
 ## Notes for this Next.js version
 
 This repo runs a build of Next.js where **Middleware is named Proxy** — the
-request entry point is `src/proxy.ts`, not `middleware.ts`. Read the bundled
-guides under `node_modules/next/dist/docs/` before changing routing, caching, or
-data-fetching code; APIs differ from older Next.js.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+request entry point is `src/proxy.ts`, not `middleware.ts`. APIs differ from
+older Next.js; check routing, caching, and data-fetching conventions against the
+installed version before changing them.
