@@ -7,7 +7,8 @@
     "profile": "Profile",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "theme": "Toggle theme"
+    "theme": "Toggle theme",
+    "menu": "Menu"
   },
   "hero": {
     "line1": "Create.",
@@ -34,6 +35,12 @@
     "photography": "Photography",
     "writing": "Writing",
     "music": "Music"
+  },
+  "footer": {
+    "tagline": "Where designers, developers, 3D artists, and filmmakers publish their work and get discovered.",
+    "browse": "Browse",
+    "categories": "Categories",
+    "rights": "© {year} Showcase. Every piece belongs to its creator."
   },
   "profile": {
     "total_views": "Total Views",

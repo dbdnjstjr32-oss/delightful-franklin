@@ -1,5 +1,5 @@
 {
-  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión", "theme": "Cambiar tema" },
+  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión", "theme": "Cambiar tema", "menu": "Menú" },
   "hero": {
     "line1": "Crea.",
     "line2": "Publica.",
@@ -25,6 +25,12 @@
     "photography": "Fotografía",
     "writing": "Escritura",
     "music": "Música"
+  },
+  "footer": {
+    "tagline": "Donde diseñadores, desarrolladores, artistas 3D y cineastas publican su trabajo y son descubiertos.",
+    "browse": "Explorar",
+    "categories": "Categorías",
+    "rights": "© {year} Showcase. Cada obra pertenece a su creador."
   },
   "profile": {
     "total_views": "Vistas Totales",

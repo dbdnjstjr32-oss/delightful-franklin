@@ -7,7 +7,8 @@
     "profile": "프로필",
     "signIn": "로그인",
     "signOut": "로그아웃",
-    "theme": "테마 전환"
+    "theme": "테마 전환",
+    "menu": "메뉴"
   },
   "hero": {
     "line1": "Create.",
@@ -34,6 +35,12 @@
     "photography": "사진",
     "writing": "글쓰기",
     "music": "음악"
+  },
+  "footer": {
+    "tagline": "디자이너, 개발자, 3D 아티스트, 영상 제작자가 작품을 공개하고 발견되는 곳.",
+    "browse": "둘러보기",
+    "categories": "카테고리",
+    "rights": "© {year} Showcase. 모든 작품의 권리는 각 창작자에게 있습니다."
   },
   "profile": {
     "total_views": "Total Views",

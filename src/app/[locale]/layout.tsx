@@ -6,6 +6,7 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Header, type HeaderUser } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { ThemeScript } from "@/components/theme/ThemeScript";
 import { Toaster } from "@/components/ui/sonner";
 import { createClient } from "@/lib/supabase/server";
@@ -101,6 +102,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <main id="main" className="flex-1">
             {children}
           </main>
+          <Footer locale={locale} />
           <Toaster position="bottom-center" />
         </NextIntlClientProvider>
       </body>

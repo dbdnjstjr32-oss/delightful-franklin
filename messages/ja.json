@@ -1,5 +1,5 @@
 {
-  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト", "theme": "テーマ切り替え" },
+  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト", "theme": "テーマ切り替え", "menu": "メニュー" },
   "hero": {
     "line1": "Create.",
     "line2": "Publish.",
@@ -25,6 +25,12 @@
     "photography": "写真",
     "writing": "ライティング",
     "music": "音楽"
+  },
+  "footer": {
+    "tagline": "デザイナー、開発者、3Dアーティスト、映像クリエイターが作品を公開し、見つけてもらう場所。",
+    "browse": "見つける",
+    "categories": "カテゴリー",
+    "rights": "© {year} Showcase. 各作品の権利は制作者に帰属します。"
   },
   "profile": {
     "total_views": "総閲覧数",
