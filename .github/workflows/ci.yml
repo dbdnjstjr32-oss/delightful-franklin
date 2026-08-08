@@ -11,9 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Node 24 ships npm 11, which is what generated package-lock.json. On
+      # node 20 (npm 10) `npm ci` rejected the same lock as out of sync, so CI
+      # had been red on every push since the lockfile was last regenerated.
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
