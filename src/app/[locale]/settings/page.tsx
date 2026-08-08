@@ -14,31 +14,35 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
   }
 
   return (
-    <div className="pt-24 px-6 max-w-3xl mx-auto min-h-screen">
-      <h1 className="text-3xl font-bold tracking-tight mb-2">Settings</h1>
-      <p className="text-muted-foreground mb-8">Manage your profile and account.</p>
+    <div className="mx-auto min-h-[70vh] w-full max-w-3xl px-5 pt-36 pb-24 sm:px-8">
+      <p className="overline text-muted-foreground">Account</p>
+      <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest sm:text-6xl">
+        Settings
+      </h1>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between p-6 rounded-2xl bg-card border border-border">
+      <dl className="mt-12 divide-y divide-border border-y border-border">
+        <div className="flex flex-wrap items-center justify-between gap-4 py-6">
           <div>
-            <h2 className="font-semibold mb-1">Profile</h2>
-            <p className="text-sm text-muted-foreground">Username, display name, bio, avatar, and links.</p>
+            <dt className="font-display text-xl font-bold tracking-tightest">Profile</dt>
+            <dd className="mt-1 text-sm text-muted-foreground">
+              Username, display name, bio, avatar, and links.
+            </dd>
           </div>
           <Link
             href={`/${locale}/onboarding`}
-            className="px-4 py-2 rounded-full text-sm font-medium bg-foreground text-background hover:opacity-80 transition-opacity whitespace-nowrap"
+            className="inline-flex h-11 items-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
           >
             Edit
           </Link>
         </div>
 
-        <div className="p-6 rounded-2xl bg-card border border-border">
-          <h2 className="font-semibold mb-1">Account</h2>
-          <p className="text-sm text-muted-foreground">
-            Email and password management coming soon.
-          </p>
+        <div className="py-6">
+          <dt className="font-display text-xl font-bold tracking-tightest">Email and password</dt>
+          <dd className="mt-1 text-sm text-muted-foreground">
+            Not available yet — sign-in details are managed by your provider for now.
+          </dd>
         </div>
-      </div>
+      </dl>
     </div>
   )
 }

@@ -27,84 +27,92 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   ])
 
   const list = portfolios ?? []
+  const name = profile?.display_name || profile?.username || 'Creator'
 
   return (
-    <div className="pt-24 px-6 max-w-5xl mx-auto min-h-screen pb-20">
-      <div className="flex items-end justify-between mb-8">
+    <div className="mx-auto min-h-[70vh] max-w-[110rem] px-5 pt-32 pb-24 sm:px-8">
+      <div className="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {profile?.display_name || profile?.username || 'Creator'}.
-          </p>
+          <p className="overline text-muted-foreground">Dashboard</p>
+          <h1 className="mt-3 font-display text-5xl font-extrabold tracking-tightest sm:text-6xl">
+            {name}
+          </h1>
         </div>
         <Link
           href={`/${locale}/upload`}
-          className="flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-2.5 rounded-full hover:opacity-80 transition-opacity whitespace-nowrap"
+          className="inline-flex h-12 items-center gap-1.5 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-85"
         >
-          <Plus size={15} />
-          New
+          <Plus size={16} aria-hidden />
+          New work
         </Link>
       </div>
 
-      <h2 className="text-lg font-semibold mb-4">
-        Your Portfolios
-        <span className="text-muted-foreground font-normal ml-2 text-sm">{list.length}</span>
-      </h2>
-
       {list.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-card">
-          <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-4 text-2xl">✦</div>
-          <p className="font-medium mb-1">No portfolios yet</p>
-          <p className="text-sm text-muted-foreground mb-5">Publish your first piece to get started.</p>
+        <div className="mt-16 flex flex-col items-center justify-center border-y border-dashed border-border py-28 text-center">
+          <p className="font-display text-3xl font-bold tracking-tightest">Nothing published yet</p>
+          <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+            Your first piece is the one that gets you found. It takes about a minute.
+          </p>
           <Link
             href={`/${locale}/upload`}
-            className="flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-2.5 rounded-full hover:opacity-80 transition-opacity"
+            className="mt-8 inline-flex h-12 items-center gap-1.5 rounded-full bg-foreground px-6 text-sm font-semibold text-background transition-opacity hover:opacity-85"
           >
-            <Plus size={15} />
+            <Plus size={16} aria-hidden />
             Upload
           </Link>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="mt-4 divide-y divide-border">
           {list.map((p) => (
-            <li
-              key={p.id}
-              className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border"
-            >
+            <li key={p.id} className="flex items-center gap-4 py-4 sm:gap-6">
               <Link
                 href={`/${locale}/portfolio/${p.id}`}
-                className="relative w-20 h-14 rounded-lg overflow-hidden bg-secondary flex-shrink-0"
+                className="relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-md bg-secondary sm:w-32"
               >
                 {p.thumbnail_url ? (
-                  <Image src={p.thumbnail_url} alt={p.title} fill className="object-cover" sizes="80px" />
+                  <Image
+                    src={p.thumbnail_url}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="128px"
+                  />
                 ) : (
-                  <span className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">✦</span>
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="overline text-muted-foreground">{p.category ?? '—'}</span>
+                  </span>
                 )}
               </Link>
 
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/${locale}/portfolio/${p.id}`}
-                  className="font-medium truncate block hover:text-primary transition-colors"
+                  className="block truncate font-display text-xl font-bold tracking-tightest text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline sm:text-2xl"
                 >
                   {p.title}
                 </Link>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                <div className="mt-1.5 flex items-center gap-4 text-xs text-muted-foreground">
                   {p.category && <span className="capitalize">{p.category}</span>}
-                  <span className="flex items-center gap-1"><Eye size={11} />{(p.views ?? 0).toLocaleString()}</span>
-                  <span className="flex items-center gap-1"><Heart size={11} />{(p.likes ?? 0).toLocaleString()}</span>
+                  <span className="flex items-center gap-1">
+                    <Eye size={12} aria-hidden />
+                    {(p.views ?? 0).toLocaleString()}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Heart size={12} aria-hidden />
+                    {(p.likes ?? 0).toLocaleString()}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex shrink-0 items-center gap-1">
                 <Link
                   href={`/${locale}/portfolio/${p.id}/edit`}
-                  aria-label="Edit portfolio"
-                  className="flex items-center justify-center w-9 h-9 rounded-full bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  aria-label={`Edit ${p.title}`}
+                  className="inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 >
-                  <Pencil size={15} />
+                  <Pencil size={16} aria-hidden />
                 </Link>
-                <DeletePortfolioButton id={p.id} />
+                <DeletePortfolioButton id={p.id} title={p.title} />
               </div>
             </li>
           ))}

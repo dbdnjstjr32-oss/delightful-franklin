@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useTransition } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Field, FormError } from '@/components/ui/form-parts'
 import { ImagePlus } from 'lucide-react'
 import { CATEGORIES } from '@/lib/categories'
 
@@ -25,14 +25,12 @@ type Props = {
   defaults?: PortfolioFormDefaults
 }
 
-const inputClass =
-  'h-11 px-4 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30'
-
 export function PortfolioForm({ action, submitLabel, defaults }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
+  const [dragging, setDragging] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Revoke the blob URL when the preview changes / unmounts.
@@ -41,9 +39,7 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
     return () => URL.revokeObjectURL(preview)
   }, [preview])
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function acceptFile(file: File) {
     setPreview(URL.createObjectURL(file))
 
     // Measure the cover so the masonry cards can reserve its exact height.
@@ -58,6 +54,21 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
     }
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) void acceptFile(file)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (!file || !file.type.startsWith('image/')) return
+    // Put the dropped file on the real input so it is part of the submission.
+    if (fileRef.current) fileRef.current.files = e.dataTransfer.files
+    void acceptFile(file)
+  }
+
   function handleSubmit(formData: FormData) {
     setError(null)
     startTransition(async () => {
@@ -69,27 +80,34 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
   const currentImage = preview ?? defaults?.thumbnail_url ?? null
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={handleSubmit} className="space-y-8">
       {defaults?.id && <input type="hidden" name="id" value={defaults.id} />}
 
-      {/* Thumbnail */}
-      <div className="space-y-2.5">
-        <Label className="text-sm font-medium">Cover image</Label>
+      <div className="space-y-2">
+        <span className="overline block text-muted-foreground">Cover image</span>
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="relative w-full aspect-[16/9] rounded-2xl bg-secondary/50 border border-dashed border-border overflow-hidden flex items-center justify-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragging(true)
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          className={`group relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-md border border-dashed transition-colors ${
+            dragging ? 'border-primary bg-primary/10' : 'border-border bg-secondary/40'
+          }`}
         >
           {currentImage ? (
-            <Image src={currentImage} alt="Cover preview" fill className="object-cover" unoptimized />
+            <Image src={currentImage} alt="" fill className="object-cover" unoptimized />
           ) : (
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <ImagePlus size={24} />
-              <span className="text-sm">Click to upload a cover image</span>
-            </div>
+            <span className="flex flex-col items-center gap-2 text-muted-foreground">
+              <ImagePlus size={24} aria-hidden />
+              <span className="text-sm">Drop an image here, or click to choose</span>
+            </span>
           )}
-          <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-medium">
-            Change image
+          <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 text-sm font-medium text-background opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            {currentImage ? 'Change image' : 'Choose image'}
           </span>
         </button>
         <input
@@ -108,88 +126,80 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
         )}
       </div>
 
-      {/* Title */}
-      <div className="space-y-2.5">
-        <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+      <Field label="Title" htmlFor="title">
         <Input
           id="title"
           name="title"
+          variant="field"
           required
           maxLength={120}
           defaultValue={defaults?.title ?? ''}
           placeholder="Give your work a title"
           aria-invalid={!!error}
           aria-describedby={error ? 'portfolio-error' : undefined}
-          className={inputClass}
         />
-      </div>
+      </Field>
 
-      {/* Category */}
-      <div className="space-y-2.5">
-        <Label htmlFor="category" className="text-sm font-medium">Category</Label>
+      <Field label="Category" htmlFor="category">
         <select
           id="category"
           name="category"
           required
           defaultValue={defaults?.category ?? ''}
-          className="w-full h-11 px-4 bg-secondary/50 border border-border rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          className="h-12 w-full rounded-md border border-input bg-secondary/50 px-4 text-base text-foreground"
         >
-          <option value="" disabled>Choose a category</option>
+          <option value="" disabled>
+            Choose a category
+          </option>
           {CATEGORIES.map((c) => (
-            <option key={c.key} value={c.key}>{c.label}</option>
+            <option key={c.key} value={c.key}>
+              {c.label}
+            </option>
           ))}
         </select>
-      </div>
+      </Field>
 
-      {/* Description */}
-      <div className="space-y-2.5">
-        <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+      <Field label="Description" htmlFor="description">
         <Textarea
           id="description"
           name="description"
+          variant="field"
           maxLength={2000}
           defaultValue={defaults?.description ?? ''}
-          placeholder="Describe your project…"
-          className="resize-none h-28 px-4 py-3 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30"
+          placeholder="What is this project, and what did you set out to do?"
+          className="h-36"
         />
-      </div>
+      </Field>
 
-      {/* Project URL */}
-      <div className="space-y-2.5">
-        <Label htmlFor="project_url" className="text-sm font-medium">Project link (optional)</Label>
+      <Field label="Project link" htmlFor="project_url" hint="Optional.">
         <Input
           id="project_url"
           name="project_url"
           type="url"
+          variant="field"
           defaultValue={defaults?.project_url ?? ''}
           placeholder="https://…"
-          className={inputClass}
         />
-      </div>
+      </Field>
 
-      {/* Tags */}
-      <div className="space-y-2.5">
-        <Label htmlFor="tags" className="text-sm font-medium">Tags (comma separated, up to 8)</Label>
+      <Field label="Tags" htmlFor="tags" hint="Comma separated, up to 8.">
         <Input
           id="tags"
           name="tags"
+          variant="field"
           defaultValue={(defaults?.tags ?? []).join(', ')}
           placeholder="branding, motion, 3d"
-          className={inputClass}
         />
-      </div>
+      </Field>
 
-      {error && (
-        <div
-          id="portfolio-error"
-          role="alert"
-          className="p-3 text-sm text-destructive-foreground bg-destructive/10 rounded-lg text-center border border-destructive/20 font-medium"
-        >
-          {error}
-        </div>
-      )}
+      {error && <FormError id="portfolio-error">{error}</FormError>}
 
-      <Button type="submit" disabled={isPending} className="w-full h-11 rounded-xl font-semibold text-base">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={isPending}
+        className="h-12 w-full rounded-full text-base font-semibold"
+      >
         {isPending ? 'Saving…' : submitLabel}
       </Button>
     </form>

@@ -2,10 +2,8 @@ import { SignupForm } from "@/features/auth/components/SignupForm"
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 pt-16">
-      <div className="w-full max-w-sm">
-        <SignupForm />
-      </div>
+    <div className="mx-auto w-full max-w-md px-5 pt-36 pb-24 sm:px-8">
+      <SignupForm />
     </div>
   )
 }
