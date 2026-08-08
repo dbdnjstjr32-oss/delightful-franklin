@@ -44,6 +44,7 @@
     "total_views": "総閲覧数",
     "total_appreciations": "総評価数",
     "projects": "プロジェクト",
-    "no_portfolio": "まだ作品がありません。"
+    "no_portfolio": "まだ作品がありません。",
+    "view_all_work": "すべての作品を見る"
   }
 }

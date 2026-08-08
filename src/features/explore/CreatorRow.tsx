@@ -1,8 +1,9 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FolderOpen, ArrowRight } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 interface Creator {
   id: string
@@ -14,52 +15,48 @@ interface Creator {
 }
 
 export function CreatorRow({ creator, locale }: { creator: Creator; locale: string }) {
+  const t = useTranslations('sections')
   const name = creator.display_name || creator.username || 'Creator'
   const count = creator.portfolios?.[0]?.count ?? 0
 
   return (
     <Link
       href={`/${locale}/u/${creator.username}`}
-      className="group flex items-center gap-5 p-4 rounded-2xl bg-card border border-border hover:border-primary/20 hover:shadow-sm transition-all duration-200"
+      className="group flex items-center gap-4 py-5 transition-colors hover:bg-secondary/60 sm:gap-6"
     >
-      {/* Avatar */}
-      <div className="w-12 h-12 rounded-full bg-secondary overflow-hidden flex-shrink-0 ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
+      <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary ring-1 ring-border">
         {creator.avatar_url ? (
           <Image
             src={creator.avatar_url}
-            alt={name}
+            alt=""
             width={48}
             height={48}
-            className="object-cover w-full h-full"
+            className="size-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-base font-bold text-muted-foreground">
+          <span className="text-base font-semibold text-muted-foreground">
             {name.charAt(0).toUpperCase()}
-          </div>
+          </span>
         )}
-      </div>
+      </span>
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-xl font-bold tracking-tightest text-foreground sm:text-2xl">
           {name}
-        </p>
-        <p className="text-xs text-muted-foreground truncate">@{creator.username}</p>
-        {creator.bio && (
-          <p className="text-xs text-muted-foreground/80 mt-0.5 truncate">{creator.bio}</p>
-        )}
-      </div>
+        </span>
+        <span className="block truncate text-sm text-muted-foreground">
+          {creator.bio || `@${creator.username}`}
+        </span>
+      </span>
 
-      {/* Project count */}
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
-        <FolderOpen size={13} />
-        <span>{count} project{count !== 1 ? 's' : ''}</span>
-      </div>
+      <span className="hidden shrink-0 text-sm text-muted-foreground sm:block">
+        {t('work_count', { count })}
+      </span>
 
-      {/* Arrow */}
-      <ArrowRight
-        size={15}
-        className="text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0"
+      <ArrowUpRight
+        size={18}
+        aria-hidden
+        className="shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
       />
     </Link>
   )

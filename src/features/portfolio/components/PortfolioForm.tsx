@@ -32,6 +32,7 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Revoke the blob URL when the preview changes / unmounts.
@@ -40,9 +41,21 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
     return () => URL.revokeObjectURL(preview)
   }, [preview])
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (file) setPreview(URL.createObjectURL(file))
+    if (!file) return
+    setPreview(URL.createObjectURL(file))
+
+    // Measure the cover so the masonry cards can reserve its exact height.
+    // A failure here is not worth blocking the upload — the card falls back
+    // to 4:3 when the size is unknown.
+    try {
+      const bitmap = await createImageBitmap(file)
+      setDimensions({ width: bitmap.width, height: bitmap.height })
+      bitmap.close()
+    } catch {
+      setDimensions(null)
+    }
   }
 
   function handleSubmit(formData: FormData) {
@@ -87,6 +100,12 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
           className="hidden"
           onChange={handleFileChange}
         />
+        {dimensions && (
+          <>
+            <input type="hidden" name="thumbnail_width" value={dimensions.width} />
+            <input type="hidden" name="thumbnail_height" value={dimensions.height} />
+          </>
+        )}
       </div>
 
       {/* Title */}

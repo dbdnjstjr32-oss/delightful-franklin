@@ -54,6 +54,7 @@
     "total_views": "Total Views",
     "total_appreciations": "Total Appreciations",
     "projects": "Projects",
-    "no_portfolio": "아직 업로드된 포트폴리오가 없습니다."
+    "no_portfolio": "아직 업로드된 포트폴리오가 없습니다.",
+    "view_all_work": "모든 작품 보기"
   }
 }

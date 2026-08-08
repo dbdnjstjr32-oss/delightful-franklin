@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Eye, Heart } from 'lucide-react'
@@ -9,6 +6,8 @@ export interface Portfolio {
   id: string
   title: string
   thumbnail_url: string | null
+  thumbnail_width?: number | null
+  thumbnail_height?: number | null
   category: string | null
   views: number
   likes: number
@@ -26,82 +25,67 @@ interface PortfolioCardProps {
   priority?: boolean
 }
 
+/** Fallback shape for rows uploaded before dimensions were recorded. */
+const FALLBACK_RATIO = 4 / 3
+// Extremely tall or wide covers would wreck a masonry column, so the rendered
+// box is clamped even when the stored size is genuine.
+const MIN_RATIO = 0.6
+const MAX_RATIO = 2.2
+
 export function PortfolioCard({ portfolio, locale, priority = false }: PortfolioCardProps) {
-  const tags = portfolio.portfolio_tags?.map(pt => pt.tags?.name).filter(Boolean).slice(0, 3) ?? []
   const creatorName = portfolio.profiles?.display_name || portfolio.profiles?.username || 'Unknown'
 
+  const stored =
+    portfolio.thumbnail_width && portfolio.thumbnail_height
+      ? portfolio.thumbnail_width / portfolio.thumbnail_height
+      : null
+  const ratio = Math.min(MAX_RATIO, Math.max(MIN_RATIO, stored ?? FALLBACK_RATIO))
+
   return (
-    <Link href={`/${locale}/portfolio/${portfolio.id}`} className="block group">
-      <motion.div
-        className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/3] cursor-pointer"
-        whileHover={{ scale: 1.02, boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
-        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+    <Link href={`/${locale}/portfolio/${portfolio.id}`} className="group block">
+      {/* aspect-ratio is set inline because it comes from data, not a token —
+          this is what reserves the height before the image loads. */}
+      <div
+        className="relative w-full overflow-hidden rounded-md bg-secondary"
+        style={{ aspectRatio: ratio }}
       >
-        {/* Image */}
         {portfolio.thumbnail_url ? (
           <Image
             src={portfolio.thumbnail_url}
-            alt={portfolio.title}
+            alt=""
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary to-muted flex items-center justify-center">
-            <span className="text-3xl text-muted-foreground/40 font-light">
-              {portfolio.category || '✦'}
-            </span>
+          <div className="flex size-full items-center justify-center bg-accent">
+            <span className="overline text-muted-foreground">{portfolio.category ?? '—'}</span>
           </div>
         )}
+      </div>
 
-        {/* Hover Overlay */}
-        <motion.div
-          className="absolute inset-0 flex flex-col justify-end p-5"
-          initial={{ opacity: 0 }}
-          whileHover={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
-          style={{
-            background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
-          }}
-        >
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex gap-1.5 mb-3 flex-wrap">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] font-medium text-white/80 bg-white/15 px-2 py-0.5 rounded-full backdrop-blur-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Title */}
-          <h3 className="text-white font-semibold text-base leading-tight mb-1 line-clamp-2">
+      {/* Metadata sits under the image rather than in a hover overlay: on a
+          touch screen there is no hover, so an overlay hides it permanently. */}
+      <div className="mt-3 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h3 className="truncate font-display text-base font-bold tracking-tightest text-foreground decoration-primary decoration-2 underline-offset-4 group-hover:underline">
             {portfolio.title}
           </h3>
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">{creatorName}</p>
+        </div>
 
-          {/* Creator + Stats */}
-          <div className="flex items-center justify-between">
-            <span className="text-white/70 text-xs font-medium">
-              by {creatorName}
-            </span>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-white/70 text-xs">
-                <Eye size={11} />
-                {portfolio.views.toLocaleString()}
-              </span>
-              <span className="flex items-center gap-1 text-white/70 text-xs">
-                <Heart size={11} />
-                {portfolio.likes.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
+        <div className="flex shrink-0 items-center gap-3 pt-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Eye size={12} aria-hidden />
+            {portfolio.views.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <Heart size={12} aria-hidden />
+            {portfolio.likes.toLocaleString()}
+          </span>
+        </div>
+      </div>
     </Link>
   )
 }

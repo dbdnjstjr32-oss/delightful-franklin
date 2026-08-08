@@ -21,7 +21,9 @@ export const getProfilePortfolios = cache(async (userId: string) => {
   const supabase = await createClient()
   const { data } = await supabase
     .from('portfolios')
-    .select('id, title, thumbnail_url, category, views, likes, portfolio_tags(tags(name))')
+    .select(
+      'id, title, thumbnail_url, thumbnail_width, thumbnail_height, category, views, likes, portfolio_tags(tags(name))'
+    )
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
