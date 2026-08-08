@@ -35,6 +35,17 @@ const admin = createClient(url, serviceKey, {
 
 const PASSWORD = 'DemoArtist!2026'
 
+// Cover shapes, cycled per work. The grid is masonry, so covers that are all
+// the same shape make it look like a plain grid; the stored width/height is
+// what lets each card reserve its real height before the image loads.
+const COVER_SHAPES = [
+  [1200, 800],
+  [900, 1200],
+  [1000, 1000],
+  [1200, 1500],
+  [1400, 900],
+]
+
 // Topical cover images per category (keyword-based so they always match).
 const CATEGORY_KEYWORDS = {
   development: 'code,programming,screen',
@@ -217,9 +228,12 @@ async function main() {
 
       for (const w of a.works) {
         let thumbnail_url = null
+        const [coverW, coverH] = COVER_SHAPES[lockFor(w.img) % COVER_SHAPES.length]
         try {
           const kw = CATEGORY_KEYWORDS[w.category] || 'abstract'
-          const buf = await fetchImage(`https://loremflickr.com/1200/800/${kw}?lock=${lockFor(w.img)}`)
+          const buf = await fetchImage(
+            `https://loremflickr.com/${coverW}/${coverH}/${kw}?lock=${lockFor(w.img)}`
+          )
           thumbnail_url = await uploadImage('portfolios', `${userId}/${w.img}.jpg`, buf)
         } catch (e) {
           console.warn(`    thumb ${w.title}: ${e.message} (using fallback)`)
@@ -236,7 +250,9 @@ async function main() {
             views: w.views ?? 0,
             likes: w.likes ?? 0,
             featured: !!w.featured,
-            ...(thumbnail_url ? { thumbnail_url } : {}),
+            ...(thumbnail_url
+              ? { thumbnail_url, thumbnail_width: coverW, thumbnail_height: coverH }
+              : {}),
           })
           .select('id')
           .single()

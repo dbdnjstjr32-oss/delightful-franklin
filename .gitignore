@@ -44,6 +44,7 @@ next-env.d.ts
 
 # AI assistant tooling (kept local, not published)
 .claude/
+.mcp.json
 CLAUDE.md
 AGENTS.md
 
