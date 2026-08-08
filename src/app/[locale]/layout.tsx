@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import { headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Header, type HeaderUser } from "@/components/layout/Header";
@@ -49,6 +49,14 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!routing.locales.includes(locale as 'ko' | 'en' | 'ja' | 'es')) {
     notFound()
   }
+
+  // Seed the request locale from the route segment.
+  //
+  // Without this, next-intl resolves the locale from the header its middleware
+  // adds to the request — and proxy.ts rebuilds the request headers itself (to
+  // carry the CSP nonce), so that header never arrives. Every non-Korean route
+  // fell back to defaultLocale and served Korean strings under lang="en".
+  setRequestLocale(locale)
 
   const messages = await getMessages()
 
