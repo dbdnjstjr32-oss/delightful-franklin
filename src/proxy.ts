@@ -73,7 +73,9 @@ export const config = {
   matcher: [
     // Exclude API, Next internals, metadata routes (sitemap/robots), and static
     // assets. Without excluding sitemap.xml/robots.txt, next-intl would redirect
-    // them to /<locale>/… and crawlers would get a 404.
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // them to /<locale>/… and crawlers would get a 404. Fonts need the same
+    // treatment: a /fonts/*.woff2 request was being redirected to
+    // /<locale>/fonts/*.woff2, so every self-hosted face failed to load.
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf|txt)$).*)',
   ],
 }

@@ -6,7 +6,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "theme": "Toggle theme"
   },
   "hero": {
     "line1": "Create.",

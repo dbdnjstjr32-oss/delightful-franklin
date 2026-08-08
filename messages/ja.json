@@ -1,5 +1,5 @@
 {
-  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト" },
+  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト", "theme": "テーマ切り替え" },
   "hero": {
     "line1": "Create.",
     "line2": "Publish.",

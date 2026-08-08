@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Globe, Upload, User, LayoutDashboard, LogOut } from 'lucide-react'
 import { signOut } from '@/features/auth/actions'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 
@@ -113,6 +114,8 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
+          <ThemeToggle label={t('theme')} />
+
           {/* Language Switcher */}
           <div className="relative" ref={langRef}>
             <button

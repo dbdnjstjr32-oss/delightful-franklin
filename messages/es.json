@@ -1,5 +1,5 @@
 {
-  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión" },
+  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión", "theme": "Cambiar tema" },
   "hero": {
     "line1": "Crea.",
     "line2": "Publica.",

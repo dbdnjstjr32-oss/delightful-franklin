@@ -6,7 +6,8 @@
     "dashboard": "대시보드",
     "profile": "프로필",
     "signIn": "로그인",
-    "signOut": "로그아웃"
+    "signOut": "로그아웃",
+    "theme": "테마 전환"
   },
   "hero": {
     "line1": "Create.",
