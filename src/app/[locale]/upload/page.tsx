@@ -15,9 +15,11 @@ export default async function UploadPage({ params }: { params: Promise<{ locale:
   }
 
   return (
-    <div className="pt-24 px-6 max-w-2xl mx-auto min-h-screen pb-20">
-      <h1 className="text-3xl font-bold tracking-tight mb-2">Upload</h1>
-      <p className="text-muted-foreground mb-8">Publish a new piece to your portfolio.</p>
+    <div className="mx-auto w-full max-w-2xl px-5 pt-36 pb-24 sm:px-8">
+      <p className="overline text-muted-foreground">New work</p>
+      <h1 className="mt-4 mb-10 font-display text-5xl font-extrabold tracking-tightest sm:text-6xl">
+        Upload
+      </h1>
       <PortfolioForm action={createPortfolio} submitLabel="Publish" />
     </div>
   )

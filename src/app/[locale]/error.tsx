@@ -16,26 +16,33 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-5 text-2xl">
-        ⚠️
-      </div>
-      <h1 className="text-2xl font-bold tracking-tight mb-2">Something went wrong</h1>
-      <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-        An unexpected error occurred. You can try again or head back home.
+    <div className="mx-auto flex min-h-[70vh] max-w-[110rem] flex-col justify-center px-5 pt-24 sm:px-8">
+      <p className="overline text-muted-foreground">Something broke</p>
+      <h1 className="mt-6 font-display text-6xl font-extrabold tracking-tightest text-foreground sm:text-8xl">
+        We hit an
+        <br />
+        <span className="text-muted-foreground">unexpected error.</span>
+      </h1>
+      <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
+        Nothing you did caused this. Try again, or head back and take another route.
       </p>
-      <div className="flex items-center gap-3">
+      {error.digest && (
+        <p className="mt-3 font-mono text-xs text-muted-foreground/70">
+          Reference: {error.digest}
+        </p>
+      )}
+      <div className="mt-10 flex flex-wrap items-center gap-3">
         <button
           onClick={reset}
-          className="px-5 py-2.5 rounded-full text-sm font-medium bg-foreground text-background hover:opacity-80 transition-opacity"
+          className="inline-flex items-center rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-85"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="px-5 py-2.5 rounded-full text-sm font-medium bg-secondary text-foreground hover:bg-accent transition-colors"
+          className="inline-flex items-center rounded-full bg-secondary px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
         >
-          Go home
+          Back to home
         </Link>
       </div>
     </div>

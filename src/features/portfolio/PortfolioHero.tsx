@@ -1,15 +1,15 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Eye, Heart, ExternalLink, Tag } from 'lucide-react'
+import { Eye, ExternalLink } from 'lucide-react'
 
 interface Props {
   portfolio: {
     title: string
-    description: string | null
     thumbnail_url: string | null
+    thumbnail_width?: number | null
+    thumbnail_height?: number | null
     project_url: string | null
     category: string | null
     views: number
@@ -22,14 +22,59 @@ interface Props {
 }
 
 export function PortfolioHero({ portfolio, tags, locale, likeControl }: Props) {
-  const formattedDate = new Date(portfolio.created_at).toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  })
+  const formattedDate = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(portfolio.created_at))
+
+  const ratio =
+    portfolio.thumbnail_width && portfolio.thumbnail_height
+      ? portfolio.thumbnail_width / portfolio.thumbnail_height
+      : 16 / 9
 
   return (
     <section>
-      {/* Full-width Hero Image */}
-      <div className="relative w-full aspect-[21/9] bg-secondary overflow-hidden">
+      {/* Title first, image second: the headline is the entry point, and the
+          cover then gets the full width it deserves. */}
+      <div className="mx-auto max-w-[110rem] px-5 pt-14 pb-12 sm:px-8">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {portfolio.category && (
+            <span className="overline text-muted-foreground">{portfolio.category}</span>
+          )}
+          <span aria-hidden className="h-px w-8 bg-border" />
+          <time className="text-sm text-muted-foreground">{formattedDate}</time>
+        </div>
+
+        <h1 className="mt-6 max-w-5xl font-display text-[clamp(2.25rem,6vw,5.5rem)] font-extrabold leading-[0.95] tracking-tightest text-foreground">
+          {portfolio.title}
+        </h1>
+
+        {/* The description is not repeated here — PortfolioStory renders it in
+            full below the cover, magazine order: headline, image, article. */}
+        <div className="mt-10 flex flex-wrap items-center gap-6 border-t border-border pt-6">
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Eye size={15} aria-hidden />
+            {portfolio.views.toLocaleString()} views
+          </span>
+
+          {likeControl}
+
+          {portfolio.project_url && (
+            <a
+              href={portfolio.project_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-85"
+            >
+              Visit project
+              <ExternalLink size={13} aria-hidden />
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div className="relative w-full overflow-hidden bg-secondary" style={{ aspectRatio: ratio }}>
         {portfolio.thumbnail_url ? (
           <Image
             src={portfolio.thumbnail_url}
@@ -40,81 +85,28 @@ export function PortfolioHero({ portfolio, tags, locale, likeControl }: Props) {
             sizes="100vw"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary via-muted to-secondary/60 flex items-center justify-center">
-            <span className="text-5xl text-muted-foreground/30 font-extralight">{portfolio.category || '✦'}</span>
+          <div className="flex size-full items-center justify-center">
+            <span className="overline text-muted-foreground">{portfolio.category ?? 'No cover'}</span>
           </div>
         )}
-        {/* Gradient fade-out at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
 
-      {/* Title + Meta */}
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-        >
-          {/* Category badge */}
-          {portfolio.category && (
-            <span className="inline-block text-xs font-medium uppercase tracking-widest text-primary mb-5">
-              {portfolio.category}
-            </span>
-          )}
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
-            {portfolio.title}
-          </h1>
-
-          {portfolio.description && (
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10 max-w-2xl">
-              {portfolio.description}
-            </p>
-          )}
-
-          {/* Stats + Links */}
-          <div className="flex flex-wrap items-center gap-6 pb-10 border-b border-border">
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Eye size={15} />
-              <span>{portfolio.views.toLocaleString()} views</span>
-            </div>
-            {likeControl ?? (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Heart size={15} />
-                <span>{portfolio.likes.toLocaleString()} appreciations</span>
-              </div>
-            )}
-            <span className="text-sm text-muted-foreground">{formattedDate}</span>
-
-            {portfolio.project_url && (
-              <a
-                href={portfolio.project_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-auto flex items-center gap-1.5 text-sm font-medium text-primary hover:opacity-70 transition-opacity"
-              >
-                Visit Project <ExternalLink size={13} />
-              </a>
-            )}
-          </div>
-
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-8">
-              {tags.map((tag) => (
+      {tags.length > 0 && (
+        <div className="mx-auto max-w-[110rem] px-5 pt-8 sm:px-8">
+          <ul className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <li key={tag}>
                 <Link
-                  key={tag}
                   href={`/${locale}/explore?tag=${tag}`}
-                  className="flex items-center gap-1.5 text-xs font-medium bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition-colors px-3 py-1.5 rounded-full"
+                  className="inline-flex rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
                 >
-                  <Tag size={11} />
                   {tag}
                 </Link>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   )
 }

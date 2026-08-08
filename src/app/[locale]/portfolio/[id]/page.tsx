@@ -110,12 +110,12 @@ export default async function PortfolioDetailPage({ params }: Props) {
         creator={profile}
       />
       {isOwner && (
-        <div className="max-w-4xl mx-auto px-6 pt-4 flex justify-end">
+        <div className="mx-auto flex max-w-[110rem] justify-end px-5 pt-6 sm:px-8">
           <Link
             href={`/${locale}/portfolio/${portfolio.id}/edit`}
-            className="flex items-center gap-1.5 text-sm font-medium bg-secondary text-foreground px-4 py-2 rounded-full hover:bg-accent transition-colors"
+            className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
           >
-            <Pencil size={14} />
+            <Pencil size={14} aria-hidden />
             Edit
           </Link>
         </div>

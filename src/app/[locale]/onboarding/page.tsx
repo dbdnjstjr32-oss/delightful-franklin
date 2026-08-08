@@ -19,9 +19,9 @@ export default async function OnboardingPage({ params }: { params: Promise<{ loc
     .maybeSingle()
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background px-4 pt-10 pb-20">
-      <OnboardingForm 
-        defaultName={profile?.display_name || ''} 
+    <div className="mx-auto w-full max-w-md px-5 pt-36 pb-24 sm:px-8">
+      <OnboardingForm
+        defaultName={profile?.display_name || ''}
         defaultUsername={profile?.username || null}
       />
     </div>

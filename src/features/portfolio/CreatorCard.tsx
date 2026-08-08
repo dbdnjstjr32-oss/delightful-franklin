@@ -1,9 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Globe, ArrowRight } from 'lucide-react'
+import { ArrowUpRight, Globe } from 'lucide-react'
+import { useReveal } from '@/lib/motion'
 
 interface Profile {
   id: string
@@ -19,69 +21,90 @@ interface Props {
   locale: string
 }
 
+/** Byline block closing the detail page. */
 export function CreatorCard({ profile, locale }: Props) {
+  const t = useTranslations('profile')
+  const reveal = useReveal()
+
   if (!profile) return null
 
+  const name = profile.display_name || profile.username || 'Creator'
+  let websiteHost: string | null = null
+  if (profile.website) {
+    try {
+      websiteHost = new URL(profile.website).hostname
+    } catch {
+      websiteHost = null
+    }
+  }
+
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-      className="py-20 px-6 border-t border-border"
-    >
-      <div className="max-w-4xl mx-auto">
-        <p className="text-xs font-medium uppercase tracking-widest text-primary mb-10">Creator</p>
+    <section className="border-t border-border">
+      <div className="mx-auto max-w-[110rem] px-5 py-20 sm:px-8">
+        <motion.div {...reveal()} className="grid gap-10 md:grid-cols-[16rem_1fr]">
+          <h2 className="overline text-muted-foreground">Creator</h2>
 
-        <div className="flex flex-col sm:flex-row items-start gap-8">
-          {/* Avatar */}
-          <div className="w-20 h-20 rounded-full bg-secondary overflow-hidden flex-shrink-0 ring-2 ring-border">
-            {profile.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={profile.display_name || profile.username || ''}
-                width={80}
-                height={80}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
-                {(profile.display_name || profile.username || '?').charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1">
-            <h3 className="text-xl font-bold tracking-tight mb-0.5">
-              {profile.display_name || profile.username}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">@{profile.username}</p>
-            {profile.bio && (
-              <p className="text-sm text-foreground/80 leading-relaxed max-w-lg mb-5">{profile.bio}</p>
-            )}
-            <div className="flex items-center gap-4">
-              {profile.website && (
-                <a
-                  href={profile.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Globe size={13} />
-                  {new URL(profile.website).hostname}
-                </a>
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+            <Link
+              href={`/${locale}/u/${profile.username}`}
+              className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary ring-1 ring-border"
+            >
+              {profile.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt=""
+                  width={80}
+                  height={80}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span className="font-display text-2xl font-bold text-muted-foreground">
+                  {name.charAt(0).toUpperCase()}
+                </span>
               )}
+            </Link>
+
+            <div className="min-w-0 flex-1">
               <Link
                 href={`/${locale}/u/${profile.username}`}
-                className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:opacity-70 transition-opacity ml-auto"
+                className="font-display text-3xl font-extrabold tracking-tightest text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline"
               >
-                모든 작품 보기 <ArrowRight size={13} />
+                {name}
               </Link>
+              <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
+
+              {profile.bio && (
+                <p className="mt-5 max-w-xl leading-relaxed text-foreground/80">{profile.bio}</p>
+              )}
+
+              <div className="mt-6 flex flex-wrap items-center gap-5">
+                {profile.website && websiteHost && (
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Globe size={14} aria-hidden />
+                    {websiteHost}
+                  </a>
+                )}
+                <Link
+                  href={`/${locale}/u/${profile.username}`}
+                  className="group inline-flex items-center gap-1 text-sm font-semibold text-foreground"
+                >
+                  {t('view_all_work')}
+                  <ArrowUpRight
+                    size={15}
+                    aria-hidden
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </motion.section>
+    </section>
   )
 }

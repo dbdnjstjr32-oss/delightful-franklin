@@ -61,6 +61,17 @@ function parsePortfolioForm(formData: FormData): { error: string } | ParsedPortf
   return { title, description, category, project_url, tags }
 }
 
+/** Intrinsic size of the uploaded cover, measured in the browser and sent along
+ *  as hidden fields. Untrusted input, so it is range-checked here as well as by
+ *  the CHECK constraint in 0005_media_dimensions.sql. Null when absent or
+ *  implausible — the card then falls back to 4:3. */
+function parseDimensions(formData: FormData): { width: number; height: number } | null {
+  const width = Number(formData.get('thumbnail_width'))
+  const height = Number(formData.get('thumbnail_height'))
+  const valid = (n: number) => Number.isInteger(n) && n > 0 && n <= 30000
+  return valid(width) && valid(height) ? { width, height } : null
+}
+
 async function uploadThumbnail(
   supabase: SupabaseServer,
   userId: string,
@@ -95,11 +106,13 @@ export async function createPortfolio(formData: FormData) {
   if ('error' in parsed) return parsed
 
   let thumbnail_url: string | null = null
+  let dimensions: { width: number; height: number } | null = null
   const thumb = formData.get('thumbnail') as File | null
   if (thumb && thumb.size > 0) {
     const up = await uploadThumbnail(supabase, user.id, thumb)
     if ('error' in up) return up
     thumbnail_url = up.url
+    dimensions = parseDimensions(formData)
   }
 
   const { data: inserted, error } = await supabase
@@ -111,6 +124,8 @@ export async function createPortfolio(formData: FormData) {
       category: parsed.category,
       project_url: parsed.project_url,
       thumbnail_url,
+      thumbnail_width: dimensions?.width ?? null,
+      thumbnail_height: dimensions?.height ?? null,
     })
     .select('id')
     .single()
@@ -158,6 +173,11 @@ export async function updatePortfolio(formData: FormData) {
     const up = await uploadThumbnail(supabase, user.id, thumb)
     if ('error' in up) return up
     update.thumbnail_url = up.url
+    // Replace the stored size with the new cover's, or clear it so the card
+    // falls back rather than reserving the old image's shape.
+    const dimensions = parseDimensions(formData)
+    update.thumbnail_width = dimensions?.width ?? null
+    update.thumbnail_height = dimensions?.height ?? null
   }
 
   // RLS restricts updates to the owner; the user_id filter is defense in depth.

@@ -1,21 +1,29 @@
 {
-  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión" },
+  "nav": { "explore": "Explorar", "creators": "Creadores", "upload": "Subir", "dashboard": "Panel", "profile": "Perfil", "signIn": "Iniciar sesión", "signOut": "Cerrar sesión", "theme": "Cambiar tema", "menu": "Menú" },
   "hero": {
     "line1": "Crea.",
     "line2": "Publica.",
     "line3": "Sé Descubierto.",
     "sub": "El hogar para diseñadores, desarrolladores, artistas 3D, cineastas y todo tipo de creativos.",
     "cta_upload": "Sube tu trabajo",
-    "cta_explore": "Explorar"
+    "cta_explore": "Explorar",
+    "badge": "El hogar del trabajo creativo"
   },
   "sections": {
     "featured": "Trabajos Destacados",
+    "featured_kicker": "Selección del editor",
     "trending": "Tendencias",
+    "trending_kicker": "Subiendo rápido",
     "new_creators": "Nuevos Creadores",
+    "new_creators_kicker": "Recién llegados",
     "categories": "Categorías",
+    "categories_kicker": "Explora por campo",
+    "see_all": "Ver todo",
+    "work_count": "{count, plural, =0 {Sin trabajos} one {# trabajo} other {# trabajos}}",
     "cta_title": "Tu trabajo merece ser visto.",
     "cta_sub": "Empieza gratis. Publica en minutos.",
-    "cta_button": "Comenzar gratis"
+    "cta_button": "Comenzar gratis",
+    "cta_note": "Sin tarjeta · Gratis para siempre"
   },
   "categories": {
     "development": "Desarrollo",
@@ -26,10 +34,17 @@
     "writing": "Escritura",
     "music": "Música"
   },
+  "footer": {
+    "tagline": "Donde diseñadores, desarrolladores, artistas 3D y cineastas publican su trabajo y son descubiertos.",
+    "browse": "Explorar",
+    "categories": "Categorías",
+    "rights": "© {year} Showcase. Cada obra pertenece a su creador."
+  },
   "profile": {
     "total_views": "Vistas Totales",
     "total_appreciations": "Apreciaciones Totales",
     "projects": "Proyectos",
-    "no_portfolio": "Sin portafolios aún."
+    "no_portfolio": "Sin portafolios aún.",
+    "view_all_work": "Ver todo el trabajo"
   }
 }

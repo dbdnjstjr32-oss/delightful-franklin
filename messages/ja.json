@@ -1,21 +1,29 @@
 {
-  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト" },
+  "nav": { "explore": "探索", "creators": "クリエイター", "upload": "アップロード", "dashboard": "ダッシュボード", "profile": "プロフィール", "signIn": "ログイン", "signOut": "ログアウト", "theme": "テーマ切り替え", "menu": "メニュー" },
   "hero": {
     "line1": "Create.",
     "line2": "Publish.",
     "line3": "Be Discovered.",
     "sub": "デザイナー、開発者、3Dアーティスト、映像クリエイターのための作品展示プラットフォーム。",
     "cta_upload": "作品をアップロード",
-    "cta_explore": "探索する"
+    "cta_explore": "探索する",
+    "badge": "創作のための場所"
   },
   "sections": {
     "featured": "おすすめ作品",
+    "featured_kicker": "エディターズ・ピック",
     "trending": "急上昇",
+    "trending_kicker": "いま伸びている",
     "new_creators": "新着クリエイター",
+    "new_creators_kicker": "参加したばかり",
     "categories": "カテゴリー",
+    "categories_kicker": "分野から探す",
+    "see_all": "すべて見る",
+    "work_count": "{count, plural, other {作品 #点}}",
     "cta_title": "あなたの作品を世界に届けましょう。",
     "cta_sub": "無料で始められます。",
-    "cta_button": "無料で始める"
+    "cta_button": "無料で始める",
+    "cta_note": "クレジットカード不要 · ずっと無料"
   },
   "categories": {
     "development": "開発",
@@ -26,10 +34,17 @@
     "writing": "ライティング",
     "music": "音楽"
   },
+  "footer": {
+    "tagline": "デザイナー、開発者、3Dアーティスト、映像クリエイターが作品を公開し、見つけてもらう場所。",
+    "browse": "見つける",
+    "categories": "カテゴリー",
+    "rights": "© {year} Showcase. 各作品の権利は制作者に帰属します。"
+  },
   "profile": {
     "total_views": "総閲覧数",
     "total_appreciations": "総評価数",
     "projects": "プロジェクト",
-    "no_portfolio": "まだ作品がありません。"
+    "no_portfolio": "まだ作品がありません。",
+    "view_all_work": "すべての作品を見る"
   }
 }

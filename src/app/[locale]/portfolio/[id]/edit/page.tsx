@@ -28,9 +28,11 @@ export default async function EditPortfolioPage({ params }: Props) {
     .filter(Boolean) ?? []) as string[]
 
   return (
-    <div className="pt-24 px-6 max-w-2xl mx-auto min-h-screen pb-20">
-      <h1 className="text-3xl font-bold tracking-tight mb-2">Edit portfolio</h1>
-      <p className="text-muted-foreground mb-8">Update the details of your work.</p>
+    <div className="mx-auto w-full max-w-2xl px-5 pt-36 pb-24 sm:px-8">
+      <p className="overline text-muted-foreground">Editing</p>
+      <h1 className="mt-4 mb-10 font-display text-5xl font-extrabold tracking-tightest sm:text-6xl">
+        {portfolio.title}
+      </h1>
       <PortfolioForm
         action={updatePortfolio}
         submitLabel="Save changes"

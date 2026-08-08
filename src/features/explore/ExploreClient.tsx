@@ -2,30 +2,15 @@
 
 import { useState, useEffect, useMemo, useCallback, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, TrendingUp, Clock, Sparkles } from 'lucide-react'
 import { PortfolioCard, Portfolio } from '@/components/portfolio/PortfolioCard'
+import { MasonryGrid } from '@/components/portfolio/MasonryGrid'
 import { CreatorRow } from '@/features/explore/CreatorRow'
+import { SearchBar } from '@/features/explore/SearchBar'
+import { FilterBar, type TabKey } from '@/features/explore/FilterBar'
+import { ExploreSkeleton } from '@/features/explore/ExploreSkeleton'
 import { createClient } from '@/lib/supabase/client'
 import { PORTFOLIO_CARD_COLUMNS } from '@/lib/queries'
-
-const CATEGORIES = [
-  { key: 'all', label: 'All' },
-  { key: 'development', label: 'Development' },
-  { key: 'design', label: 'Design' },
-  { key: '3d', label: '3D' },
-  { key: 'video', label: 'Video' },
-  { key: 'photography', label: 'Photography' },
-  { key: 'writing', label: 'Writing' },
-  { key: 'music', label: 'Music' },
-] as const
-
-const TABS = [
-  { key: 'latest', label: 'Latest', icon: Clock },
-  { key: 'trending', label: 'Trending', icon: TrendingUp },
-  { key: 'creators', label: 'New Creators', icon: Sparkles },
-] as const
-
-type TabKey = typeof TABS[number]['key']
+import { useReveal } from '@/lib/motion'
 
 const PAGE_SIZE = 24
 
@@ -48,15 +33,6 @@ interface Props {
   newCreators: Creator[]
 }
 
-const gridReveal = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.05 } },
-}
-const cardReveal = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] } },
-}
-
 export function ExploreClient({
   locale,
   initialTab,
@@ -77,6 +53,7 @@ export function ExploreClient({
 
   const supabase = useMemo(() => createClient(), [])
   const tablistId = useId()
+  const reveal = useReveal()
 
   const searching = query.trim().length > 0
   const showCreators = tab === 'creators' && !searching
@@ -136,184 +113,97 @@ export function ExploreClient({
     setLoadingMore(false)
   }
 
-  // Roving-focus arrow-key navigation for the tablist (WAI-ARIA Tabs pattern).
-  const onTablistKeyDown = (e: React.KeyboardEvent) => {
-    const idx = TABS.findIndex((t) => t.key === tab)
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      e.preventDefault()
-      const dir = e.key === 'ArrowRight' ? 1 : -1
-      const next = TABS[(idx + dir + TABS.length) % TABS.length]
-      setTab(next.key)
-      document.getElementById(`${tablistId}-tab-${next.key}`)?.focus()
-    }
-  }
+  const showSkeleton = loading && items.length === 0
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-16">
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-        className="mb-12"
-      >
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3">Explore</h1>
-        <p className="text-muted-foreground text-lg">Discover the world&apos;s best creative work.</p>
-      </motion.div>
+    <div className="mx-auto max-w-[110rem] px-5 pt-28 pb-24 sm:px-8">
+      <header className="mb-10">
+        <p className="overline text-muted-foreground">Browse</p>
+        <h1 className="mt-3 font-display text-5xl font-extrabold tracking-tightest sm:text-7xl">
+          Explore
+        </h1>
+      </header>
 
-      {/* Search Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-        className="relative mb-10"
-      >
-        <Search
-          size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-        />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search portfolios"
-          placeholder="Search by title, category, or keyword..."
-          className="w-full bg-secondary border border-border rounded-2xl pl-11 pr-11 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-        />
-        {query && (
-          <button
-            onClick={() => setQuery('')}
-            aria-label="Clear search"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X size={16} />
-          </button>
-        )}
-        {loading && (
-          <div className="absolute right-10 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-        )}
-      </motion.div>
+      <div className="mb-8">
+        <SearchBar query={query} onChange={setQuery} loading={loading} />
+      </div>
 
-      {/* Tabs + Category row */}
       {!searching && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5 }}
-          className="flex flex-col gap-4 mb-10"
-        >
-          {/* Tabs */}
-          <div
-            role="tablist"
-            aria-label="Browse"
-            onKeyDown={onTablistKeyDown}
-            className="flex items-center gap-1 border-b border-border"
-          >
-            {TABS.map(({ key, label, icon: Icon }) => {
-              const selected = tab === key
-              return (
-                <button
-                  key={key}
-                  id={`${tablistId}-tab-${key}`}
-                  role="tab"
-                  aria-selected={selected}
-                  aria-controls={`${tablistId}-panel`}
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => setTab(key)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-all relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md ${
-                    selected ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <Icon size={14} />
-                  {label}
-                  {selected && (
-                    <motion.div
-                      layoutId="tab-underline"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full"
-                    />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Category filter — only for portfolio tabs */}
-          {tab !== 'creators' && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {CATEGORIES.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setCategory(key)}
-                  aria-pressed={category === key}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
-                    category === key
-                      ? 'bg-foreground text-background'
-                      : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
-        </motion.div>
+        <div className="mb-10">
+          <FilterBar
+            tab={tab}
+            onTabChange={setTab}
+            category={category}
+            onCategoryChange={setCategory}
+            tablistId={tablistId}
+          />
+        </div>
       )}
 
-      {/* Results */}
       <div id={`${tablistId}-panel`} role="tabpanel">
         <AnimatePresence mode="wait">
           {showCreators ? (
-            <motion.div
+            <motion.ul
               key="creators"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-3"
+              transition={{ duration: 0.25 }}
+              className="divide-y divide-border border-y border-border"
             >
               {newCreators.map((creator, i) => (
-                <motion.div
-                  key={creator.id}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-                >
+                <motion.li key={creator.id} {...reveal(i)}>
                   <CreatorRow creator={creator} locale={locale} />
-                </motion.div>
+                </motion.li>
               ))}
-              {newCreators.length === 0 && <EmptyState message="No new creators yet." />}
-            </motion.div>
+              {newCreators.length === 0 && (
+                <li>
+                  <EmptyState
+                    title="No creators yet"
+                    message="New accounts show up here as soon as they publish."
+                  />
+                </li>
+              )}
+            </motion.ul>
+          ) : showSkeleton ? (
+            <ExploreSkeleton key="skeleton" />
           ) : (
             <motion.div
               key={`${tab}-${category}-${searching}`}
-              variants={gridReveal}
-              initial="hidden"
-              animate="visible"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              transition={{ duration: 0.25 }}
             >
-              {items.map((p) => (
-                <motion.div key={p.id} variants={cardReveal}>
-                  <PortfolioCard portfolio={p} locale={locale} />
-                </motion.div>
-              ))}
+              <MasonryGrid>
+                {items.map((p, i) => (
+                  <motion.div key={p.id} {...reveal(i % 12)}>
+                    <PortfolioCard portfolio={p} locale={locale} priority={i < 3} />
+                  </motion.div>
+                ))}
+              </MasonryGrid>
+
               {items.length === 0 && !loading && (
-                <div className="col-span-full">
-                  <EmptyState message={searching ? `No results for "${query}"` : 'Nothing here yet.'} />
-                </div>
+                <EmptyState
+                  title={searching ? 'Nothing matched' : 'Nothing here yet'}
+                  message={
+                    searching
+                      ? `No work matches “${query}”. Try a broader keyword.`
+                      : 'Be the first to publish in this category.'
+                  }
+                />
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Load more */}
       {!showCreators && items.length > 0 && hasMore && (
-        <div className="flex justify-center mt-12">
+        <div className="mt-16 flex justify-center">
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-6 py-3 rounded-full text-sm font-medium bg-secondary text-foreground hover:bg-accent transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="rounded-full border border-border px-8 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-60"
           >
             {loadingMore ? 'Loading…' : 'Load more'}
           </button>
@@ -323,11 +213,11 @@ export function ExploreClient({
   )
 }
 
-function EmptyState({ message }: { message: string }) {
+function EmptyState({ title, message }: { title: string; message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-5 text-2xl">✦</div>
-      <p className="text-muted-foreground text-sm">{message}</p>
+    <div className="flex flex-col items-center justify-center border-y border-dashed border-border py-28 text-center">
+      <p className="font-display text-3xl font-bold tracking-tightest text-foreground">{title}</p>
+      <p className="mt-3 max-w-sm text-sm text-muted-foreground">{message}</p>
     </div>
   )
 }

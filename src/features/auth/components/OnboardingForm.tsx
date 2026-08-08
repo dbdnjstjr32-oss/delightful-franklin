@@ -5,12 +5,17 @@ import Image from 'next/image'
 import { updateOnboardingProfile } from '@/features/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Upload, UserCircle } from 'lucide-react'
+import { Field, FormError } from '@/components/ui/form-parts'
+import { Camera } from 'lucide-react'
 
-export function OnboardingForm({ defaultName, defaultUsername }: { defaultName: string, defaultUsername: string | null }) {
+export function OnboardingForm({
+  defaultName,
+  defaultUsername,
+}: {
+  defaultName: string
+  defaultUsername: string | null
+}) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
@@ -41,121 +46,108 @@ export function OnboardingForm({ defaultName, defaultUsername }: { defaultName: 
   }
 
   return (
-    <Card className="w-full max-w-lg mx-auto shadow-lg border-border/50 mt-10">
-      <CardHeader className="space-y-2 text-center pb-6 pt-8">
-        <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl font-bold">✦</span>
-        </div>
-        <CardTitle className="text-2xl font-bold tracking-tight">Complete your profile</CardTitle>
-        <CardDescription className="text-muted-foreground px-4">
-          Tell us a bit about yourself. You can always change this later.
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="px-8 pb-8">
-        <form action={handleSubmit} className="space-y-6">
-          
-          {/* Avatar Upload */}
-          <div className="flex flex-col items-center gap-4">
-            <div 
-              className="w-24 h-24 rounded-full bg-secondary overflow-hidden border-2 border-border flex items-center justify-center relative group cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {preview ? (
-                <Image
-                  src={preview}
-                  alt="Avatar preview"
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <UserCircle size={40} className="text-muted-foreground" />
-              )}
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Upload size={20} className="text-white" />
-              </div>
-            </div>
-            <input 
-              type="file" 
-              name="avatar" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-            <p className="text-xs text-muted-foreground">Click to upload avatar</p>
-          </div>
+    <div>
+      <p className="overline text-muted-foreground">One last step</p>
+      <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest text-foreground sm:text-6xl">
+        Complete your profile
+      </h1>
+      <p className="mt-5 max-w-sm text-muted-foreground">
+        You can change any of this later.
+      </p>
 
-          <div className="space-y-2.5">
-            <Label htmlFor="username" className="text-sm font-medium">Username (Required)</Label>
-            <Input 
-              id="username" 
-              name="username" 
-              defaultValue={defaultUsername || ''}
-              placeholder="e.g. wonseok" 
-              required
-              pattern="^[a-zA-Z0-9_]{3,20}$"
-              title="3-20 characters long, letters, numbers, and underscores only"
-              aria-invalid={!!error}
-              aria-describedby={error ? 'onboarding-error' : undefined}
-              className="h-11 px-4 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2.5">
-            <Label htmlFor="displayName" className="text-sm font-medium">Display Name</Label>
-            <Input 
-              id="displayName" 
-              name="displayName" 
-              defaultValue={defaultName}
-              placeholder="e.g. 원석" 
-              aria-invalid={!!error}
-              aria-describedby={error ? 'onboarding-error' : undefined}
-              className="h-11 px-4 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2.5">
-            <Label htmlFor="bio" className="text-sm font-medium">Bio (One-line description)</Label>
-            <Textarea 
-              id="bio" 
-              name="bio" 
-              placeholder="e.g. 3D Artist & Motion Designer based in Seoul" 
-              className="resize-none h-20 px-4 py-3 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2.5">
-            <Label htmlFor="website" className="text-sm font-medium">SNS / Website Link</Label>
-            <Input 
-              id="website" 
-              name="website" 
-              type="url"
-              placeholder="https://instagram.com/..." 
-              aria-invalid={!!error}
-              aria-describedby={error ? 'onboarding-error' : undefined}
-              className="h-11 px-4 bg-secondary/50 border-border rounded-xl focus-visible:ring-primary/30"
-            />
-          </div>
-
-          {error && (
-            <div id="onboarding-error" role="alert" className="p-3 text-sm text-destructive-foreground bg-destructive/10 rounded-lg text-center border border-destructive/20 font-medium">
-              {error}
-            </div>
-          )}
-
-          <Button 
-            type="submit" 
-            className="w-full h-11 rounded-xl font-semibold text-base mt-4" 
-            disabled={isPending}
+      <form action={handleSubmit} className="mt-10 space-y-6">
+        <div className="flex items-center gap-5">
+          {/* A real button, not a click handler on a div: the avatar picker has
+              to be reachable by keyboard. */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Upload avatar"
+            className="group relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary ring-1 ring-border"
           >
-            {isPending ? 'Saving...' : 'Finish & Go to Dashboard'}
-          </Button>
+            {preview ? (
+              <Image src={preview} alt="" fill sizes="96px" className="object-cover" unoptimized />
+            ) : (
+              <Camera size={22} className="text-muted-foreground" aria-hidden />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              <Camera size={20} className="text-background" aria-hidden />
+            </span>
+          </button>
+          <p className="text-sm text-muted-foreground">
+            Add a profile photo
+            <br />
+            <span className="text-xs">Optional</span>
+          </p>
+        </div>
+        <input
+          type="file"
+          name="avatar"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
 
-        </form>
-      </CardContent>
-    </Card>
+        <Field label="Username" htmlFor="username" hint="3–20 characters: letters, numbers, underscores.">
+          <Input
+            id="username"
+            name="username"
+            variant="field"
+            defaultValue={defaultUsername || ''}
+            placeholder="e.g. wonseok"
+            required
+            pattern="^[a-zA-Z0-9_]{3,20}$"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'onboarding-error' : undefined}
+          />
+        </Field>
+
+        <Field label="Display Name" htmlFor="displayName">
+          <Input
+            id="displayName"
+            name="displayName"
+            variant="field"
+            defaultValue={defaultName}
+            placeholder="e.g. 원석"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'onboarding-error' : undefined}
+          />
+        </Field>
+
+        <Field label="Bio" htmlFor="bio">
+          <Textarea
+            id="bio"
+            name="bio"
+            variant="field"
+            className="h-24"
+            placeholder="e.g. 3D Artist & Motion Designer based in Seoul"
+          />
+        </Field>
+
+        <Field label="Website or social link" htmlFor="website">
+          <Input
+            id="website"
+            name="website"
+            type="url"
+            variant="field"
+            placeholder="https://instagram.com/…"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'onboarding-error' : undefined}
+          />
+        </Field>
+
+        {error && <FormError id="onboarding-error">{error}</FormError>}
+
+        <Button
+          type="submit"
+          size="lg"
+          className="h-12 w-full rounded-full text-base font-semibold"
+          disabled={isPending}
+        >
+          {isPending ? 'Saving…' : 'Finish'}
+        </Button>
+      </form>
+    </div>
   )
 }

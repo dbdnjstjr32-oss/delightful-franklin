@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Heart } from 'lucide-react'
+import { toast } from 'sonner'
 import { useRouter } from '@/i18n/routing'
 import { toggleLike } from '@/features/portfolio/likes-actions'
 
@@ -36,6 +37,8 @@ export function LikeButton({ portfolioId, initialLiked, initialCount, isAuthed }
       if ('error' in result) {
         setLiked(prevLiked)
         setCount(prevCount)
+        // The optimistic count silently snapping back looked like a UI glitch.
+        toast.error("That didn't save. Try again.")
       } else {
         // Trust the server's authoritative liked state.
         setLiked(result.liked)
@@ -50,11 +53,17 @@ export function LikeButton({ portfolioId, initialLiked, initialCount, isAuthed }
       disabled={isPending}
       aria-pressed={liked}
       aria-label={liked ? 'Remove appreciation' : 'Appreciate this work'}
+      // Liked state reads through the icon, not the label colour: lime text on
+      // the light background sits at ~1.2:1 and fails AA outright.
       className={`flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-60 ${
-        liked ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+        liked ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
       }`}
     >
-      <Heart size={15} className={liked ? 'fill-current' : ''} />
+      <Heart
+        size={15}
+        aria-hidden
+        className={liked ? 'fill-primary stroke-foreground' : ''}
+      />
       <span>{count.toLocaleString()} appreciations</span>
     </button>
   )

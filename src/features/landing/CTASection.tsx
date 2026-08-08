@@ -4,40 +4,40 @@ import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { useReveal } from '@/lib/motion'
 
+/** Full-bleed lime block — the one place the accent takes the whole surface.
+ *  Text on lime is always ink; white would sit at ~1.2:1. */
 export function CTASection({ locale }: { locale: string }) {
   const t = useTranslations('sections')
+  const reveal = useReveal()
 
   return (
-    <section className="py-32 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-        >
-          {/* Decorative line */}
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-border to-transparent mx-auto mb-12" />
-
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6">
+    <section className="bg-primary text-primary-foreground">
+      <div className="mx-auto max-w-[110rem] px-5 py-28 sm:px-8 sm:py-36">
+        <motion.div {...reveal()}>
+          <h2 className="max-w-4xl font-display text-[clamp(2.5rem,7vw,6rem)] font-extrabold leading-[0.95] tracking-tightest">
             {t('cta_title')}
           </h2>
-          <p className="text-lg text-muted-foreground mb-12 max-w-md mx-auto">
-            {t('cta_sub')}
-          </p>
 
-          <Link
-            href={`/${locale}/login`}
-            className="group inline-flex items-center gap-2 bg-foreground text-background px-10 py-4 rounded-full font-semibold text-base hover:opacity-80 transition-opacity"
-          >
-            {t('cta_button')}
-            <ArrowRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          <div className="mt-12 flex flex-col gap-8 border-t border-primary-foreground/20 pt-8 md:flex-row md:items-center md:justify-between">
+            <p className="max-w-sm text-base text-primary-foreground/80">{t('cta_sub')}</p>
 
-          <p className="text-xs text-muted-foreground/60 mt-6">
-            신용카드 불필요 · 영구 무료
-          </p>
+            <div className="flex flex-col items-start gap-3">
+              <Link
+                href={`/${locale}/login`}
+                className="group inline-flex items-center gap-2 rounded-full bg-primary-foreground px-8 py-4 text-base font-semibold text-primary transition-opacity hover:opacity-85"
+              >
+                {t('cta_button')}
+                <ArrowRight
+                  size={18}
+                  aria-hidden
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+              <p className="text-xs text-primary-foreground/70">{t('cta_note')}</p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

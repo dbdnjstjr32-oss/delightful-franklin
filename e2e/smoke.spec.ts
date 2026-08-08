@@ -5,7 +5,8 @@ import { test, expect } from '@playwright/test'
 test('home redirects to a locale and renders the brand', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/(ko|en|ja|es)(\/|$)/)
-  await expect(page.getByRole('link', { name: 'Showcase' })).toBeVisible()
+  // Scoped to the header: the footer now carries a second brand link.
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Showcase' })).toBeVisible()
 })
 
 test('explore page renders the tablist', async ({ page }) => {

@@ -1,15 +1,44 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Pretendard (OFL) — vendored dynamic subsets in public/fonts/pretendard.
+   Self-hosted because proxy.ts locks the CSP to `font-src 'self'`; the browser
+   only downloads the unicode ranges a page actually renders. */
+@import "./pretendard.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+
+  /* Display face carries headlines; sans carries UI + body. Both stacks end in
+     Pretendard so Korean/Japanese glyphs never fall through to a random system
+     font (the latin faces have no CJK coverage). */
+  --font-display: var(--font-archivo), var(--font-inter), "Pretendard Variable",
+    Pretendard, system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Pretendard Variable", Pretendard,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Hiragino Sans", "Yu Gothic UI",
+    system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+
+  /* Editorial type scale — headline sizes are deliberately far apart so the
+     page reads as a magazine spread rather than a uniform grid of text. */
+  --text-display: 6rem;
+  --text-display--line-height: 0.92;
+  --text-display--letter-spacing: -0.045em;
+  --text-headline: 3.5rem;
+  --text-headline--line-height: 1;
+  --text-headline--letter-spacing: -0.035em;
+  --text-title: 2rem;
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.02em;
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1;
+  --text-overline--letter-spacing: 0.18em;
+
+  --tracking-tightest: -0.045em;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,6 +56,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  /* Was referenced by Header/LoginForm/PortfolioForm but never defined, so the
+     error text rendered with an unresolved colour. */
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -48,73 +80,77 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Ink + electric lime. Lime is an accent only: it is never a text colour on a
+   light surface (1.2:1 against white) — text *on* lime is always ink. */
 :root {
-  --background: #FFFFFF;
-  --foreground: #111111;
-  --card: #FFFFFF;
-  --card-foreground: #111111;
-  --popover: #FFFFFF;
-  --popover-foreground: #111111;
-  --primary: #0071E3;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F5F5F7;
-  --secondary-foreground: #6E6E73;
-  --muted: #F5F5F7;
-  --muted-foreground: #6E6E73;
-  --accent: #F5F5F7;
-  --accent-foreground: #111111;
-  --destructive: #FF3B30;
-  --border: #D2D2D7;
-  --input: #D2D2D7;
-  --ring: #0071E3;
-  --chart-1: #0071E3;
-  --chart-2: #34C759;
-  --chart-3: #FF9500;
-  --chart-4: #FF3B30;
-  --chart-5: #AF52DE;
-  --radius: 0.5rem;
-  --sidebar: #F5F5F7;
-  --sidebar-foreground: #111111;
-  --sidebar-primary: #0071E3;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E5E5EA;
-  --sidebar-accent-foreground: #111111;
-  --sidebar-border: #D2D2D7;
-  --sidebar-ring: #0071E3;
+  --background: #fafaf8;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #d4ff3f;
+  --primary-foreground: #0a0a0a;
+  --secondary: #f0efea;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f0efea;
+  --muted-foreground: #63635c;
+  --accent: #e9e7df;
+  --accent-foreground: #0a0a0a;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #e2e0d8;
+  --input: #d5d3c9;
+  --ring: #0a0a0a;
+  --chart-1: #0a0a0a;
+  --chart-2: #d4ff3f;
+  --chart-3: #63635c;
+  --chart-4: #b3261e;
+  --chart-5: #a8a69c;
+  --radius: 0.25rem;
+  --sidebar: #f0efea;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #d4ff3f;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #e9e7df;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #e2e0d8;
+  --sidebar-ring: #0a0a0a;
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #F5F5F7;
-  --card: #1C1C1E;
-  --card-foreground: #F5F5F7;
-  --popover: #1C1C1E;
-  --popover-foreground: #F5F5F7;
-  --primary: #0A84FF;
-  --primary-foreground: #FFFFFF;
-  --secondary: #2C2C2E;
-  --secondary-foreground: #8E8E93;
-  --muted: #2C2C2E;
-  --muted-foreground: #8E8E93;
-  --accent: #2C2C2E;
-  --accent-foreground: #F5F5F7;
-  --destructive: #FF453A;
-  --border: #38383A;
-  --input: #38383A;
-  --ring: #0A84FF;
-  --chart-1: #0A84FF;
-  --chart-2: #30D158;
-  --chart-3: #FF9F0A;
-  --chart-4: #FF453A;
-  --chart-5: #BF5AF2;
-  --sidebar: #1C1C1E;
-  --sidebar-foreground: #F5F5F7;
-  --sidebar-primary: #0A84FF;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #2C2C2E;
-  --sidebar-accent-foreground: #F5F5F7;
-  --sidebar-border: #38383A;
-  --sidebar-ring: #0A84FF;
+  --background: #0a0a0a;
+  --foreground: #f5f4ef;
+  --card: #141413;
+  --card-foreground: #f5f4ef;
+  --popover: #141413;
+  --popover-foreground: #f5f4ef;
+  --primary: #d4ff3f;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1c1c1a;
+  --secondary-foreground: #f5f4ef;
+  --muted: #1c1c1a;
+  --muted-foreground: #a3a29a;
+  --accent: #232320;
+  --accent-foreground: #f5f4ef;
+  --destructive: #ff8a80;
+  --destructive-foreground: #0a0a0a;
+  --border: #2a2a27;
+  --input: #33332f;
+  --ring: #d4ff3f;
+  --chart-1: #f5f4ef;
+  --chart-2: #d4ff3f;
+  --chart-3: #a3a29a;
+  --chart-4: #ff8a80;
+  --chart-5: #63635c;
+  --sidebar: #141413;
+  --sidebar-foreground: #f5f4ef;
+  --sidebar-primary: #d4ff3f;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #232320;
+  --sidebar-accent-foreground: #f5f4ef;
+  --sidebar-border: #2a2a27;
+  --sidebar-ring: #d4ff3f;
 }
 
 @layer base {
@@ -127,4 +163,50 @@
   html {
     @apply font-sans;
   }
+
+  /* Headlines are display-face and tight by default so individual components
+     don't each have to remember the editorial treatment. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tightest;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* One focus treatment for the whole app, high-contrast in both themes. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility text-display {
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--text-display--letter-spacing);
+}
+
+/* Small all-caps label used above section headings. */
+@utility overline {
+  font-size: var(--text-overline);
+  line-height: var(--text-overline--line-height);
+  letter-spacing: var(--text-overline--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 600;
 }

@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Sparkles } from 'lucide-react'
+import { SectionHeading } from '@/features/landing/SectionHeading'
+import { useReveal } from '@/lib/motion'
 
 interface Creator {
   id: string
@@ -22,72 +23,70 @@ interface Props {
 
 export function NewCreatorsSection({ creators, locale }: Props) {
   const t = useTranslations('sections')
+  const reveal = useReveal()
 
   if (!creators.length) return null
 
   return (
-    <section className="py-24 px-6">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-          className="flex items-end justify-between mb-12"
-        >
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles size={14} className="text-primary" />
-              <p className="text-xs font-medium text-primary uppercase tracking-widest">Just Joined</p>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">{t('new_creators')}</h2>
-          </div>
-          <a href={`/${locale}/explore?tab=creators`} className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
-            See all →
-          </a>
-        </motion.div>
+    <section className="border-t border-border px-5 py-24 sm:px-8">
+      <div className="mx-auto max-w-[110rem]">
+        <SectionHeading
+          kicker={t('new_creators_kicker')}
+          title={t('new_creators')}
+          href={`/${locale}/explore?tab=creators`}
+          linkLabel={t('see_all')}
+        />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
-          {creators.map((creator, i) => (
-            <motion.div
-              key={creator.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: i * 0.06, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-            >
-              <Link
-                href={`/${locale}/u/${creator.username}`}
-                className="group flex flex-col items-center text-center gap-3"
-              >
-                {/* Avatar */}
-                <div className="w-16 h-16 rounded-full bg-secondary overflow-hidden ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-200">
-                  {creator.avatar_url ? (
-                    <Image
-                      src={creator.avatar_url}
-                      alt={creator.display_name || creator.username || ''}
-                      width={64}
-                      height={64}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-muted-foreground">
-                      {(creator.display_name || creator.username || '?').charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold leading-tight group-hover:text-primary transition-colors">
-                    {creator.display_name || creator.username || 'Creator'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    @{creator.username}
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+        {/* A roster list rather than an avatar row: names carry the section, and
+            it reads the same on a phone as on a wide screen. */}
+        <ul>
+          {creators.map((creator, i) => {
+            const name = creator.display_name || creator.username || 'Creator'
+            const count = creator.portfolios?.[0]?.count ?? 0
+
+            return (
+              <motion.li key={creator.id} {...reveal(i)} className="border-b border-border">
+                <Link
+                  href={`/${locale}/u/${creator.username}`}
+                  className="group flex items-center gap-4 py-5 transition-colors hover:bg-secondary/60 sm:gap-6"
+                >
+                  <span className="w-8 shrink-0 font-mono text-xs text-muted-foreground">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+
+                  <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary ring-1 ring-border">
+                    {creator.avatar_url ? (
+                      <Image
+                        src={creator.avatar_url}
+                        alt=""
+                        width={48}
+                        height={48}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-base font-semibold text-muted-foreground">
+                        {name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-display text-xl font-bold tracking-tightest text-foreground sm:text-2xl">
+                      {name}
+                    </span>
+                    <span className="block truncate text-sm text-muted-foreground">
+                      @{creator.username}
+                    </span>
+                  </span>
+
+                  <span className="shrink-0 pr-1 text-sm text-muted-foreground">
+                    {t('work_count', { count })}
+                  </span>
+                </Link>
+              </motion.li>
+            )
+          })}
+        </ul>
       </div>
     </section>
   )
