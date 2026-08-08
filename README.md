@@ -7,7 +7,9 @@ A **multilingual creator platform** — a showcase space where designers, develo
 - **Internationalization** with `next-intl` — four fully translated locales (English · 한국어 · 日本語 · Español) served via `[locale]` routing
 - **Authentication** with Supabase SSR (email + username sign-in), where **Row Level Security** — not the anon key — is the security boundary
 - **Hardened by default** — per-request **nonce-based CSP** plus HSTS, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy` on every response
-- **Next.js 16 (App Router) + React 19 + TypeScript**, styled with **Tailwind CSS v4 + shadcn/ui + Base UI + Radix** and animated with **Framer Motion**
+- **Editorial design system** — ink + electric lime tokens, cookie-backed dark mode resolved during SSR (no flash), and self-hosted Pretendard subsets so CJK text never falls back to a system face
+- **Masonry browsing** — cover dimensions are captured at upload, so every card reserves its exact height before the image loads
+- **Next.js 16 (App Router) + React 19 + TypeScript**, styled with **Tailwind CSS v4 + shadcn/ui + Base UI** and animated with **Framer Motion**, respecting `prefers-reduced-motion`
 - **Tested** — Playwright end-to-end specs and a dedicated RLS policy suite, run in CI on every push
 
 ## Tech stack
@@ -45,6 +47,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
    #   supabase/migrations/0002_security.sql        (RLS, storage policies, view dedup)
    #   supabase/migrations/0003_likes_system.sql    (portfolio_likes table, toggle_like RPC)
    #   supabase/migrations/0004_portfolio_crud.sql  (portfolios bucket, tags, CRUD RPCs)
+   #   supabase/migrations/0005_media_dimensions.sql (cover width/height for the masonry grid)
    ```
 
    The app degrades gracefully if the RPCs are missing (stats read as 0, view
@@ -65,6 +68,39 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | `npm run test:rls` | RLS integration test — proves policies deny cross-user writes |
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, and build on every push/PR.
+
+## Deploying
+
+Any Node host works, but the app is built around request-time rendering
+(`proxy.ts` sets a per-request CSP nonce), so a static export is not an option.
+
+1. Import the repository on [Vercel](https://vercel.com/new) and keep the
+   detected Next.js defaults.
+2. Add the four environment variables from `.env.example` to **Production and
+   Preview**, before the first build — `next.config.ts` derives the allowed
+   image hosts from `NEXT_PUBLIC_SUPABASE_URL` at build time, so a deploy
+   without it will refuse to render Supabase-hosted covers.
+   `SUPABASE_SERVICE_ROLE_KEY` is server-only; it must never gain a
+   `NEXT_PUBLIC_` prefix.
+3. After the first deploy, set `NEXT_PUBLIC_SITE_URL` to the real domain and
+   redeploy. Canonical URLs, OG images, and `sitemap.xml` all read it.
+4. In Supabase → Authentication → URL Configuration, set the Site URL to the
+   same domain and add one redirect URL per locale, since the callback route
+   lives under the locale segment:
+
+   ```text
+   https://<domain>/ko/auth/callback
+   https://<domain>/en/auth/callback
+   https://<domain>/ja/auth/callback
+   https://<domain>/es/auth/callback
+   ```
+
+5. For Google sign-in, enable the provider in Supabase and register the same
+   callback URLs in the Google Cloud console.
+
+Run `npm run test:rls` against a staging project before opening the site up —
+the anon key is public by design, so the policies are the only thing standing
+between a visitor and someone else's rows.
 
 ## Internationalization
 
