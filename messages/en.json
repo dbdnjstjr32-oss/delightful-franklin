@@ -16,16 +16,24 @@
     "line3": "Be Discovered.",
     "sub": "The home for designers, developers, 3D artists, filmmakers, and every creator in between.",
     "cta_upload": "Upload Your Work",
-    "cta_explore": "Explore"
+    "cta_explore": "Explore",
+    "badge": "The Home For Creative Work"
   },
   "sections": {
     "featured": "Featured Works",
+    "featured_kicker": "Editor's Pick",
     "trending": "Trending",
+    "trending_kicker": "Rising Fast",
     "new_creators": "New Creators",
+    "new_creators_kicker": "Just Joined",
     "categories": "Categories",
+    "categories_kicker": "Browse By Field",
+    "see_all": "See all",
+    "work_count": "{count, plural, =0 {No work yet} one {# work} other {# works}}",
     "cta_title": "Your work deserves to be seen.",
     "cta_sub": "Start for free. Publish in minutes.",
-    "cta_button": "Get Started — It's Free"
+    "cta_button": "Get Started — It's Free",
+    "cta_note": "No credit card · Free forever"
   },
   "categories": {
     "development": "Development",
