@@ -23,6 +23,10 @@ interface PortfolioCardProps {
   portfolio: Portfolio
   locale: string
   priority?: boolean
+  /** Off on a creator's own page, where the byline is both redundant and
+   *  unavailable — that query doesn't join profiles, so the card would have
+   *  printed "Unknown" under every one of their works. */
+  showCreator?: boolean
 }
 
 /** Fallback shape for rows uploaded before dimensions were recorded. */
@@ -32,8 +36,13 @@ const FALLBACK_RATIO = 4 / 3
 const MIN_RATIO = 0.6
 const MAX_RATIO = 2.2
 
-export function PortfolioCard({ portfolio, locale, priority = false }: PortfolioCardProps) {
-  const creatorName = portfolio.profiles?.display_name || portfolio.profiles?.username || 'Unknown'
+export function PortfolioCard({
+  portfolio,
+  locale,
+  priority = false,
+  showCreator = true,
+}: PortfolioCardProps) {
+  const creatorName = portfolio.profiles?.display_name || portfolio.profiles?.username || null
 
   const stored =
     portfolio.thumbnail_width && portfolio.thumbnail_height
@@ -72,7 +81,9 @@ export function PortfolioCard({ portfolio, locale, priority = false }: Portfolio
           <h3 className="truncate font-display text-base font-bold tracking-tightest text-foreground decoration-primary decoration-2 underline-offset-4 group-hover:underline">
             {portfolio.title}
           </h3>
-          <p className="mt-0.5 truncate text-sm text-muted-foreground">{creatorName}</p>
+          {showCreator && creatorName && (
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">{creatorName}</p>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-3 pt-1 text-xs text-muted-foreground">

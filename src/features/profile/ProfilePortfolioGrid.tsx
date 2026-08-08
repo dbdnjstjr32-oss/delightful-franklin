@@ -36,7 +36,12 @@ export function ProfilePortfolioGrid({ portfolios, locale }: Props) {
         <MasonryGrid>
           {portfolios.map((portfolio, i) => (
             <motion.div key={portfolio.id} {...reveal(i % 12)}>
-              <PortfolioCard portfolio={portfolio} locale={locale} priority={i < 3} />
+              <PortfolioCard
+                portfolio={portfolio}
+                locale={locale}
+                priority={i < 3}
+                showCreator={false}
+              />
             </motion.div>
           ))}
         </MasonryGrid>
