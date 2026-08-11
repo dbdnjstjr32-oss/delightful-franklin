@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { useReveal } from '@/lib/motion'
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
  *  carries those fields, this renders only what exists: the description.
  */
 export function PortfolioStory({ portfolio }: Props) {
+  const t = useTranslations('work')
   const reveal = useReveal()
 
   if (!portfolio.description) return null
@@ -28,7 +30,7 @@ export function PortfolioStory({ portfolio }: Props) {
     <section className="border-t border-border">
       <div className="mx-auto max-w-[110rem] px-5 py-24 sm:px-8">
         <motion.div {...reveal()} className="grid gap-10 md:grid-cols-[16rem_1fr]">
-          <h2 className="overline text-muted-foreground">About this project</h2>
+          <h2 className="overline text-muted-foreground">{t('about')}</h2>
           {/* Measure capped near 70 characters — the readable line length for
               long-form text at this size. */}
           <div className="max-w-[65ch] space-y-6 text-lg leading-relaxed text-foreground/85">

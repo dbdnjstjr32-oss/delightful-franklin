@@ -60,11 +60,10 @@ export default async function UserProfilePage({ params }: Props) {
     getProfileStats(profile.id),
   ])
 
-  // Localize creator-authored text (bio + work titles) for the current locale.
-  const [localizedBio, localizedPortfolios] = await Promise.all([
-    translateText(profile.bio, locale),
-    Promise.all(portfolios.map(async (p) => ({ ...p, title: await translateText(p.title, locale) }))),
-  ])
+  // The bio is prose, so it is localized. Work titles are names and stay as
+  // the creator wrote them.
+  const localizedBio = await translateText(profile.bio, locale)
+  const localizedPortfolios = portfolios
 
   return (
     <div className="pt-16">

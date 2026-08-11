@@ -25,6 +25,9 @@ export const getProfilePortfolios = cache(async (userId: string) => {
       'id, title, thumbnail_url, thumbnail_width, thumbnail_height, category, views, likes, portfolio_tags(tags(name))'
     )
     .eq('user_id', userId)
+    // A creator viewing their own public profile should see it as visitors do;
+    // drafts live in the studio.
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
 
   return (data ?? []) as unknown as Portfolio[]

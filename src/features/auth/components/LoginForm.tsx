@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { loginWithCredentials, loginWithGoogle } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,18 +10,21 @@ import { GoogleIcon } from '@/features/auth/components/GoogleIcon'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
+/** Query-string states the auth callback can redirect back with, mapped to the
+ *  message key that explains them. */
 const QUERY_ERRORS: Record<string, string> = {
-  auth_failed: 'Sign-in failed. Please try again.',
+  auth_failed: 'error_auth_failed',
 }
 const QUERY_NOTICES: Record<string, string> = {
-  'confirm-email': 'Check your email to confirm your account, then sign in.',
+  'confirm-email': 'notice_confirm_email',
 }
 
 export function LoginForm({ notice, initialError }: { notice?: string; initialError?: string }) {
-  const [error, setError] = useState<string | null>(
-    initialError ? QUERY_ERRORS[initialError] ?? null : null
-  )
-  const noticeMessage = notice ? QUERY_NOTICES[notice] : undefined
+  const t = useTranslations('auth')
+  const errorKey = initialError ? QUERY_ERRORS[initialError] : undefined
+  const noticeKey = notice ? QUERY_NOTICES[notice] : undefined
+  const [error, setError] = useState<string | null>(errorKey ? t(errorKey) : null)
+  const noticeMessage = noticeKey ? t(noticeKey) : undefined
   const [isPending, startTransition] = useTransition()
   const params = useParams()
   const locale = params.locale as string
@@ -47,9 +51,9 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
 
   return (
     <div>
-      <p className="overline text-muted-foreground">Sign in</p>
+      <p className="overline text-muted-foreground">{t('signin_kicker')}</p>
       <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest text-foreground sm:text-6xl">
-        Welcome back
+        {t('signin_heading')}
       </h1>
 
       <form action={handleSubmit} className="mt-10 space-y-5">
@@ -62,13 +66,14 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
           </p>
         )}
 
-        {/* The label text is what the e2e spec matches on — keep it verbatim. */}
-        <Field label="Username or Email" htmlFor="identifier">
+        {/* e2e/smoke.spec.ts matches this label on /en/login, so the English
+            value of `identifier_label` has to stay verbatim. */}
+        <Field label={t('identifier_label')} htmlFor="identifier">
           <Input
             id="identifier"
             name="identifier"
             variant="field"
-            placeholder="wonseok or name@example.com"
+            placeholder={t('identifier_placeholder')}
             required
             autoComplete="username"
             aria-invalid={!!error}
@@ -76,7 +81,7 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
           />
         </Field>
 
-        <Field label="Password" htmlFor="password">
+        <Field label={t('password_label')} htmlFor="password">
           <Input
             id="password"
             name="password"
@@ -92,13 +97,13 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
         {error && <FormError id="login-error">{error}</FormError>}
 
         <Button type="submit" size="lg" className="h-12 w-full rounded-full text-base font-semibold" disabled={isPending}>
-          {isPending ? 'Signing in…' : 'Sign in'}
+          {isPending ? t('signin_submitting') : t('signin_submit')}
         </Button>
 
         <div className="relative py-2">
           <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-border" />
           <span className="relative mx-auto block w-fit bg-background px-3 text-xs text-muted-foreground">
-            or
+            {t('divider_or')}
           </span>
         </div>
 
@@ -111,17 +116,17 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
           disabled={isPending}
         >
           <GoogleIcon className="mr-2 size-5" />
-          Google
+          {t('google')}
         </Button>
       </form>
 
       <p className="mt-10 text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
+        {t('no_account')}{' '}
         <Link
           href={`/${locale}/signup`}
           className="font-semibold text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline"
         >
-          Sign up
+          {t('to_signup')}
         </Link>
       </p>
     </div>

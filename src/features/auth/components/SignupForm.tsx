@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { signup, loginWithGoogle } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +11,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 export function SignupForm() {
+  const t = useTranslations('auth')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const params = useParams()
@@ -45,21 +47,19 @@ export function SignupForm() {
 
   return (
     <div>
-      <p className="overline text-muted-foreground">Sign up</p>
+      <p className="overline text-muted-foreground">{t('signup_kicker')}</p>
       <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest text-foreground sm:text-6xl">
-        Create an account
+        {t('signup_heading')}
       </h1>
-      <p className="mt-5 max-w-sm text-muted-foreground">
-        Publish your work and get discovered.
-      </p>
+      <p className="mt-5 max-w-sm text-muted-foreground">{t('signup_sub')}</p>
 
       <form action={handleSubmit} className="mt-10 space-y-5">
-        <Field label="Username" htmlFor="username" hint="3–20 characters: letters, numbers, underscores.">
+        <Field label={t('username_label')} htmlFor="username" hint={t('username_hint')}>
           <Input
             id="username"
             name="username"
             variant="field"
-            placeholder="e.g. wonseok"
+            placeholder={t('username_placeholder')}
             required
             pattern="^[a-zA-Z0-9_]{3,20}$"
             autoComplete="username"
@@ -68,12 +68,12 @@ export function SignupForm() {
           />
         </Field>
 
-        <Field label="Display Name" htmlFor="displayName">
+        <Field label={t('display_name_label')} htmlFor="displayName">
           <Input
             id="displayName"
             name="displayName"
             variant="field"
-            placeholder="e.g. 원석"
+            placeholder={t('display_name_placeholder')}
             required
             autoComplete="name"
             aria-invalid={!!error}
@@ -81,13 +81,13 @@ export function SignupForm() {
           />
         </Field>
 
-        <Field label="Email Address" htmlFor="email">
+        <Field label={t('email_label')} htmlFor="email">
           <Input
             id="email"
             name="email"
             type="email"
             variant="field"
-            placeholder="name@example.com"
+            placeholder={t('email_placeholder')}
             required
             autoComplete="email"
             aria-invalid={!!error}
@@ -96,7 +96,7 @@ export function SignupForm() {
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Password" htmlFor="password">
+          <Field label={t('password_label')} htmlFor="password">
             <Input
               id="password"
               name="password"
@@ -109,7 +109,7 @@ export function SignupForm() {
               aria-describedby={error ? 'signup-error' : undefined}
             />
           </Field>
-          <Field label="Confirm Password" htmlFor="confirmPassword">
+          <Field label={t('confirm_password_label')} htmlFor="confirmPassword">
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -132,13 +132,13 @@ export function SignupForm() {
           className="h-12 w-full rounded-full text-base font-semibold"
           disabled={isPending}
         >
-          {isPending ? 'Creating account…' : 'Create account'}
+          {isPending ? t('signup_submitting') : t('signup_submit')}
         </Button>
 
         <div className="relative py-2">
           <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-border" />
           <span className="relative mx-auto block w-fit bg-background px-3 text-xs text-muted-foreground">
-            or
+            {t('divider_or')}
           </span>
         </div>
 
@@ -151,17 +151,17 @@ export function SignupForm() {
           disabled={isPending}
         >
           <GoogleIcon className="mr-2 size-5" />
-          Google
+          {t('google')}
         </Button>
       </form>
 
       <p className="mt-10 text-sm text-muted-foreground">
-        Already have an account?{' '}
+        {t('have_account')}{' '}
         <Link
           href={`/${locale}/login`}
           className="font-semibold text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline"
         >
-          Sign in
+          {t('to_signin')}
         </Link>
       </p>
     </div>

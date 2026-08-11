@@ -10,12 +10,21 @@ import { logger } from '@/lib/logger'
 // caching + call sites stay the same. On ANY failure we return the original
 // text, so translation can never break a render.
 
-const SOURCE_FALLBACK = 'en'
 const cache = new Map<string, string>()
 const inflight = new Map<string, Promise<string>>()
 
-function hasHangul(s: string) {
-  return /[가-힣]/.test(s)
+/** Scripts that are cheap to recognise. When the text is already written in the
+ *  target's script there is nothing to do, so the round-trip is skipped.
+ *
+ *  This replaces an earlier `if (target === 'en') return text` shortcut, which
+ *  made translation one-way: an English description was translated for Korean
+ *  readers, but a Korean one was left in Korean for English readers. Latin-
+ *  script locales (en, es) share a script and cannot be told apart here, so
+ *  they fall through to the provider — it auto-detects the source and returns
+ *  the text unchanged when it already matches the target. */
+const ALREADY_IN_TARGET: Record<string, RegExp> = {
+  ko: /[가-힣]/,
+  ja: /[぀-ゟ゠-ヿ]/,
 }
 
 async function callProvider(text: string, target: string): Promise<string> {
@@ -35,17 +44,17 @@ async function callProvider(text: string, target: string): Promise<string> {
   }
 }
 
-/** Translate `text` into `target` locale. Returns the original on no-op or failure. */
+/** Translate `text` into `target` locale. Returns the original on no-op or failure.
+ *
+ *  Meant for prose a creator wrote — a description, a bio. NOT for titles: a
+ *  work's title is its name, and machine-translating "Neon Drive — Loop" into
+ *  each locale renames the piece rather than explaining it. */
 export async function translateText(
   text: string | null | undefined,
   target: string
 ): Promise<string> {
   if (!text || !text.trim()) return text ?? ''
-  if (target === SOURCE_FALLBACK) return text
-  // Skip when the text already looks like the target language (Korean only —
-  // the one script we can detect cheaply), so Korean-authored content is left
-  // untouched.
-  if (target === 'ko' && hasHangul(text)) return text
+  if (ALREADY_IN_TARGET[target]?.test(text)) return text
 
   const key = `${target}:${text}`
   const cached = cache.get(key)
@@ -70,9 +79,4 @@ export async function translateText(
   })()
   inflight.set(key, promise)
   return promise
-}
-
-/** Translate several strings in parallel. */
-export function translateAll(texts: Array<string | null | undefined>, target: string) {
-  return Promise.all(texts.map((t) => translateText(t, target)))
 }

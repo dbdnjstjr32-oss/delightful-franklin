@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import { ExploreClient } from '@/features/explore/ExploreClient'
-import { PORTFOLIO_CARD_COLUMNS } from '@/lib/queries'
-import { translateText } from '@/lib/translate'
+import { PORTFOLIO_CARD_COLUMNS, PUBLISHED } from '@/lib/queries'
 import type { Portfolio } from '@/components/portfolio/PortfolioCard'
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; category?: string; q?: string }> }
@@ -41,11 +40,13 @@ export default async function ExplorePage({ params, searchParams }: Props) {
     supabase
       .from('portfolios')
       .select(PORTFOLIO_CARD_COLUMNS)
+      .eq('status', PUBLISHED)
       .order('created_at', { ascending: false })
       .limit(24),
     supabase
       .from('portfolios')
       .select(PORTFOLIO_CARD_COLUMNS)
+      .eq('status', PUBLISHED)
       .order('likes', { ascending: false })
       .order('views', { ascending: false })
       .limit(24),
@@ -60,11 +61,8 @@ export default async function ExplorePage({ params, searchParams }: Props) {
     (p: { portfolios: { count: number }[] }) => p.portfolios?.[0]?.count >= 1
   ).slice(0, 24)
 
-  // Localize the SSR card titles for the current locale.
-  const localizeTitles = (rows: Array<{ title: string }> | null) =>
-    Promise.all((rows ?? []).map(async (p) => ({ ...p, title: await translateText(p.title, locale) })))
-  const [latestL, trendingL] = await Promise.all([localizeTitles(latest), localizeTitles(trending)])
-
+  // Titles are shown as written — they name the work. Only prose (descriptions,
+  // bios) goes through machine translation.
   return (
     <div className="pt-16 min-h-screen">
       <ExploreClient
@@ -72,8 +70,8 @@ export default async function ExplorePage({ params, searchParams }: Props) {
         initialTab={tab}
         initialCategory={category ?? null}
         initialQuery={q ?? ''}
-        latest={latestL as unknown as Portfolio[]}
-        trending={trendingL as unknown as Portfolio[]}
+        latest={(latest ?? []) as unknown as Portfolio[]}
+        trending={(trending ?? []) as unknown as Portfolio[]}
         newCreators={newCreators}
       />
     </div>
