@@ -113,7 +113,88 @@ async function main() {
   const anonIns = await anon.from('portfolios').insert({ title: 'x', category: 'design' }).select('id')
   check('anon INSERT portfolio is blocked', !!anonIns.error || (anonIns.data?.length ?? 0) === 0)
 
+  // --- 0006/0007: drafts and attachments ------------------------------------
+
+  // 9. A draft is invisible to everyone but its owner.
+  const draft = await clientA
+    .from('portfolios')
+    .insert({ user_id: users.a.id, title: 'RLS draft', category: 'design', status: 'draft' })
+    .select('id')
+    .single()
+  const draftId = draft.data?.id
+  check('owner can INSERT a draft', !draft.error && !!draftId, draft.error?.message)
+
+  const anonDraft = await anon.from('portfolios').select('id').eq('id', draftId).maybeSingle()
+  check('anon cannot SELECT a draft', !anonDraft.data)
+
+  const bDraft = await clientB.from('portfolios').select('id').eq('id', draftId).maybeSingle()
+  check('another user cannot SELECT a draft', !bDraft.data)
+
+  const ownDraft = await clientA.from('portfolios').select('id').eq('id', draftId).maybeSingle()
+  check('owner CAN SELECT their own draft', !!ownDraft.data)
+
+  // 10. Only the owner may attach files, and only to their own work.
+  const attach = await clientA.rpc('set_portfolio_assets', {
+    p_portfolio_id: draftId,
+    p_assets: [
+      { url: 'https://example.test/a.png', storage_path: `${users.a.id}/a.png`, kind: 'image', mime_type: 'image/png' },
+    ],
+  })
+  check('owner can set attachments', !attach.error, attach.error?.message)
+
+  const stealAttach = await clientB.rpc('set_portfolio_assets', {
+    p_portfolio_id: draftId,
+    p_assets: [{ url: 'https://evil.test/x.png', storage_path: `${users.b.id}/x.png`, kind: 'image' }],
+  })
+  check('non-owner set_portfolio_assets is rejected', !!stealAttach.error)
+
+  const forgedAsset = await clientB
+    .from('portfolio_assets')
+    .insert({ portfolio_id: draftId, user_id: users.a.id, url: 'https://evil.test/x.png', kind: 'image' })
+    .select('id')
+  check(
+    'non-owner INSERT into portfolio_assets is blocked',
+    !!forgedAsset.error || (forgedAsset.data?.length ?? 0) === 0
+  )
+
+  const wipeAssets = await clientB.from('portfolio_assets').delete().eq('portfolio_id', draftId).select('id')
+  check("non-owner cannot DELETE another user's attachments", (wipeAssets.data?.length ?? 0) === 0)
+
+  // 11. A draft's attachment rows are hidden along with the draft.
+  const anonAssets = await anon.from('portfolio_assets').select('id').eq('portfolio_id', draftId)
+  check("anon cannot SELECT a draft's attachments", (anonAssets.data?.length ?? 0) === 0)
+
+  // 12. Nobody else can publish someone's draft.
+  await clientB.from('portfolios').update({ status: 'published' }).eq('id', draftId)
+  const stillDraft = await admin.from('portfolios').select('status').eq('id', draftId).single()
+  check('non-owner cannot publish a draft', stillDraft.data?.status === 'draft', `status=${stillDraft.data?.status}`)
+
+  // 13. The view counter ignores drafts (it is SECURITY DEFINER, so it sees past RLS).
+  await anon.rpc('increment_portfolio_views', { p_id: draftId, p_viewer: 'rls-test' })
+  const draftViews = await admin.from('portfolios').select('views').eq('id', draftId).single()
+  check('view counter does not increment a draft', (draftViews.data?.views ?? 0) === 0, `views=${draftViews.data?.views}`)
+
+  // 14. Public profile stats exclude drafts.
+  const statsRes = await anon.rpc('get_profile_stats', { p_user_id: users.a.id })
+  const statsRow = Array.isArray(statsRes.data) ? statsRes.data[0] : statsRes.data
+  check(
+    'get_profile_stats counts published work only',
+    Number(statsRow?.project_count ?? -1) === 1,
+    `project_count=${statsRow?.project_count}`
+  )
+
+  // 15. The bucket declares what it accepts (0007), so a crafted upload cannot
+  //     turn the public bucket into a general file host.
+  const evil = await clientA.storage
+    .from('portfolios')
+    .upload(`${users.a.id}/${crypto.randomUUID()}.html`, new Blob(['<script>x</script>']), {
+      contentType: 'text/html',
+    })
+  check('storage rejects a disallowed MIME type', !!evil.error, evil.error?.message ?? 'upload succeeded')
+
   // Teardown.
+  await admin.from('portfolio_assets').delete().eq('portfolio_id', draftId)
+  await admin.from('portfolios').delete().eq('id', draftId)
   await admin.from('portfolios').delete().eq('id', portfolioId)
   await admin.auth.admin.deleteUser(users.a.id)
   await admin.auth.admin.deleteUser(users.b.id)
