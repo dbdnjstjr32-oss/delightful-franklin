@@ -167,7 +167,20 @@
     "draft_badge": "下書き — 自分だけに表示",
     "about": "この作品について",
     "gallery_label": "ファイル",
-    "attachment_fallback": "添付ファイル"
+    "attachment_fallback": "添付ファイル",
+    "ratio_label": "表示比率",
+    "ratio_hint": "グリッドと作品ページでの見せ方です。元のファイルはそのままです。",
+    "ratio_original": "元のまま",
+    "ratio_cover_aria": "カバーの表示比率",
+    "ratio_asset_aria": "{name} の表示比率",
+    "layout_label": "ページレイアウト",
+    "layout_help": "この作品がファイルを見せる方法です。いつでも変更できます。",
+    "layout_gallery": "ギャラリー",
+    "layout_gallery_hint": "積み重ねるだけ。各ファイルは元のサイズのまま。",
+    "layout_deck": "デッキ",
+    "layout_deck_hint": "番号付きスライドを揃った枠で。プレゼン資料やデモ画面向け。",
+    "layout_case_study": "ケーススタディ",
+    "layout_case_study_hint": "画像と説明を左右交互に。文章で辿る制作記録向け。"
   },
   "errors": {
     "not_authenticated": "ログインが必要です。",
@@ -225,9 +238,10 @@
     "onboarding_submitting": "保存中…",
     "settings_kicker": "アカウント",
     "settings_heading": "設定",
-    "settings_profile_title": "プロフィール",
-    "settings_profile_body": "ユーザー名、表示名、自己紹介、アバター、リンク。",
     "settings_credentials_title": "メールとパスワード",
-    "settings_credentials_body": "まだ利用できません — ログイン情報は現在プロバイダーが管理しています。"
+    "settings_credentials_body": "まだ利用できません — ログイン情報は現在プロバイダーが管理しています。",
+    "settings_save": "プロフィールを保存",
+    "settings_saved": "プロフィールを保存しました。",
+    "settings_view_public": "公開プロフィール:"
   }
 }

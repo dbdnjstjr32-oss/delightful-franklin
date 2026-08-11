@@ -167,7 +167,20 @@
     "draft_badge": "Draft — visible only to you",
     "about": "About this project",
     "gallery_label": "Files",
-    "attachment_fallback": "Attachment"
+    "attachment_fallback": "Attachment",
+    "ratio_label": "Aspect ratio",
+    "ratio_hint": "How this is framed in grids and on the work page. The file itself is untouched.",
+    "ratio_original": "Original",
+    "ratio_cover_aria": "Cover aspect ratio",
+    "ratio_asset_aria": "Aspect ratio for {name}",
+    "layout_label": "Page layout",
+    "layout_help": "How this work presents its files. You can change it any time.",
+    "layout_gallery": "Gallery",
+    "layout_gallery_hint": "A simple stack, each file at its own size.",
+    "layout_deck": "Deck",
+    "layout_deck_hint": "Numbered slides in even frames — for presentations and demo shots.",
+    "layout_case_study": "Case study",
+    "layout_case_study_hint": "Media alternating beside its caption, for a written walkthrough."
   },
   "errors": {
     "not_authenticated": "Not authenticated.",
@@ -225,9 +238,10 @@
     "onboarding_submitting": "Saving…",
     "settings_kicker": "Account",
     "settings_heading": "Settings",
-    "settings_profile_title": "Profile",
-    "settings_profile_body": "Username, display name, bio, avatar, and links.",
     "settings_credentials_title": "Email and password",
-    "settings_credentials_body": "Not available yet — sign-in details are managed by your provider for now."
+    "settings_credentials_body": "Not available yet — sign-in details are managed by your provider for now.",
+    "settings_save": "Save profile",
+    "settings_saved": "Profile saved.",
+    "settings_view_public": "Your public profile:"
   }
 }

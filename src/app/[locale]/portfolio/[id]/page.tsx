@@ -152,7 +152,10 @@ export default async function PortfolioDetailPage({ params }: Props) {
         }
       />
       <PortfolioStory portfolio={localizedPortfolio} />
-      <PortfolioGallery assets={toUploadedAssets(portfolio.portfolio_assets)} />
+      <PortfolioGallery
+        assets={toUploadedAssets(portfolio.portfolio_assets)}
+        layout={portfolio.layout}
+      />
       <CreatorCard profile={profile} locale={locale} />
     </div>
   )

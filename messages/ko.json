@@ -167,7 +167,20 @@
     "draft_badge": "초안 — 나만 볼 수 있음",
     "about": "작품 소개",
     "gallery_label": "파일",
-    "attachment_fallback": "첨부 파일"
+    "attachment_fallback": "첨부 파일",
+    "ratio_label": "화면 비율",
+    "ratio_hint": "그리드와 작품 페이지에서 보여줄 틀이에요. 원본 파일은 그대로예요.",
+    "ratio_original": "원본",
+    "ratio_cover_aria": "커버 화면 비율",
+    "ratio_asset_aria": "{name} 화면 비율",
+    "layout_label": "페이지 레이아웃",
+    "layout_help": "이 작품이 파일을 보여주는 방식이에요. 언제든 바꿀 수 있어요.",
+    "layout_gallery": "갤러리",
+    "layout_gallery_hint": "단순히 쌓아서 보여줘요. 각 파일은 원래 크기대로.",
+    "layout_deck": "데크",
+    "layout_deck_hint": "번호가 붙은 슬라이드를 같은 틀로. 발표자료·데모 스샷용.",
+    "layout_case_study": "케이스 스터디",
+    "layout_case_study_hint": "이미지와 설명을 좌우로 번갈아. 글로 풀어내는 작업기용."
   },
   "errors": {
     "not_authenticated": "로그인이 필요합니다.",
@@ -225,9 +238,10 @@
     "onboarding_submitting": "저장 중…",
     "settings_kicker": "계정",
     "settings_heading": "설정",
-    "settings_profile_title": "프로필",
-    "settings_profile_body": "아이디, 표시 이름, 소개, 프로필 사진, 링크.",
     "settings_credentials_title": "이메일과 비밀번호",
-    "settings_credentials_body": "아직 지원하지 않아요 — 로그인 정보는 현재 공급자가 관리합니다."
+    "settings_credentials_body": "아직 지원하지 않아요 — 로그인 정보는 현재 공급자가 관리합니다.",
+    "settings_save": "프로필 저장",
+    "settings_saved": "프로필을 저장했어요.",
+    "settings_view_public": "공개 프로필:"
   }
 }

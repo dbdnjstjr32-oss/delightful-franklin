@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl'
 import { ImagePlus } from 'lucide-react'
 import { uploadAsset } from '@/features/portfolio/upload-client'
 import { COVER_IMAGE_TYPES, MAX_COVER_BYTES, formatBytes } from '@/lib/uploads'
+import { aspectRatio, type Ratio } from '@/lib/presentation'
+import { RatioPicker } from './RatioPicker'
 
 type Uploaded = { url: string; path: string; width: number | null; height: number | null }
 
@@ -19,11 +21,18 @@ type Uploaded = { url: string; path: string; width: number | null; height: numbe
 export function CoverPicker({
   userId,
   defaultUrl = null,
+  defaultRatio = null,
+  defaultWidth = null,
+  defaultHeight = null,
 }: {
   userId: string
   defaultUrl?: string | null
+  defaultRatio?: Ratio | null
+  defaultWidth?: number | null
+  defaultHeight?: number | null
 }) {
   const t = useTranslations('work')
+  const [ratio, setRatio] = useState<Ratio | null>(defaultRatio)
   const [uploaded, setUploaded] = useState<Uploaded | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [progress, setProgress] = useState<number | null>(null)
@@ -89,6 +98,9 @@ export function CoverPicker({
         </>
       )}
       {uploading && <input type="hidden" name="cover_pending" value="1" />}
+      {/* Sent whether or not a new file was picked — the creator can reframe an
+          existing cover without re-uploading it. */}
+      <input type="hidden" name="thumbnail_ratio" value={ratio ?? ''} />
 
       <button
         type="button"
@@ -104,7 +116,14 @@ export function CoverPicker({
           const file = e.dataTransfer.files?.[0]
           if (file) void accept(file)
         }}
-        className={`group relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-md border border-dashed transition-colors ${
+        style={{
+          aspectRatio: aspectRatio(
+            ratio,
+            uploaded?.width ?? defaultWidth,
+            uploaded?.height ?? defaultHeight
+          ),
+        }}
+        className={`group relative flex w-full items-center justify-center overflow-hidden rounded-md border border-dashed transition-colors ${
           dragging ? 'border-primary bg-primary/10' : 'border-border bg-secondary/40'
         }`}
       >
@@ -142,6 +161,11 @@ export function CoverPicker({
           e.target.value = ''
         }}
       />
+
+      <div>
+        <span className="text-xs text-muted-foreground">{t('ratio_hint')}</span>
+        <RatioPicker value={ratio} onChange={setRatio} label={t('ratio_cover_aria')} />
+      </div>
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
     </div>

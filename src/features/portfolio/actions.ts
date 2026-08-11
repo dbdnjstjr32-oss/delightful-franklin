@@ -13,6 +13,7 @@ import {
   assetKind,
   type UploadedAsset,
 } from '@/lib/uploads'
+import { parseLayout, parseRatio } from '@/lib/presentation'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getTranslations } from 'next-intl/server'
@@ -41,6 +42,7 @@ type ParsedPortfolio = {
   project_url: string | null
   tags: string[]
   status: PortfolioStatus
+  layout: string
 }
 
 function parsePortfolioForm(
@@ -53,6 +55,9 @@ function parsePortfolioForm(
   const projectUrlRaw = ((formData.get('project_url') as string) ?? '').trim()
   const tagsRaw = (formData.get('tags') as string) ?? ''
   const status: PortfolioStatus = formData.get('status') === 'draft' ? 'draft' : 'published'
+  // Unknown values fall back to 'gallery' rather than erroring — the preset is
+  // presentation, and a bad value should not block someone saving their work.
+  const layout = parseLayout(formData.get('layout'))
 
   if (!title) return { error: t('title_required') }
   if (title.length > 120) return { error: t('title_too_long') }
@@ -84,7 +89,7 @@ function parsePortfolioForm(
     )
   ).slice(0, MAX_TAGS)
 
-  return { title, description, category, project_url, tags, status }
+  return { title, description, category, project_url, tags, status, layout }
 }
 
 /**
@@ -212,6 +217,7 @@ function parseAssets(
       width: dimension(item.width),
       height: dimension(item.height),
       caption: typeof item.caption === 'string' ? item.caption.trim().slice(0, MAX_CAPTION_LEN) : '',
+      ratio: parseRatio(item.ratio),
     })
   }
 
@@ -242,9 +248,11 @@ export async function createPortfolio(formData: FormData) {
       category: parsed.category,
       project_url: parsed.project_url,
       status: parsed.status,
+      layout: parsed.layout,
       thumbnail_url: cover?.url ?? null,
       thumbnail_width: cover?.width ?? null,
       thumbnail_height: cover?.height ?? null,
+      thumbnail_ratio: parseRatio(formData.get('thumbnail_ratio')),
     })
     .select('id')
     .single()
@@ -295,6 +303,9 @@ export async function updatePortfolio(formData: FormData) {
     category: parsed.category,
     project_url: parsed.project_url,
     status: parsed.status,
+    layout: parsed.layout,
+    // Always sent, so the creator can reframe a cover without re-uploading it.
+    thumbnail_ratio: parseRatio(formData.get('thumbnail_ratio')),
     updated_at: new Date().toISOString(),
   }
 

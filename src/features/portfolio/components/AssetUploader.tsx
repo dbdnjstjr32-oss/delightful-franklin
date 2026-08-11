@@ -26,6 +26,8 @@ import {
   type AssetKind,
   type UploadedAsset,
 } from '@/lib/uploads'
+import { parseRatio, type Ratio } from '@/lib/presentation'
+import { RatioPicker } from './RatioPicker'
 
 type Item = {
   id: string
@@ -300,19 +302,34 @@ export function AssetUploader({
                   )}
 
                   {item.status === 'done' && item.asset && (
-                    // Controlled: the caption lives in `items`, and reordering
-                    // re-renders the row. With `defaultValue` Base UI warns that
-                    // an uncontrolled field's default changed after mount.
-                    <Input
-                      aria-label={t('caption_aria', { name: item.name })}
-                      placeholder={t('caption_placeholder')}
-                      maxLength={MAX_CAPTION_LEN}
-                      value={item.asset.caption}
-                      onChange={(e) =>
-                        patch(item.id, { asset: { ...item.asset!, caption: e.target.value } })
-                      }
-                      className="mt-2 h-8"
-                    />
+                    <>
+                      {/* Controlled: the caption lives in `items`, and reordering
+                          re-renders the row. With `defaultValue` Base UI warns
+                          that an uncontrolled field's default changed after
+                          mount. */}
+                      <Input
+                        aria-label={t('caption_aria', { name: item.name })}
+                        placeholder={t('caption_placeholder')}
+                        maxLength={MAX_CAPTION_LEN}
+                        value={item.asset.caption}
+                        onChange={(e) =>
+                          patch(item.id, { asset: { ...item.asset!, caption: e.target.value } })
+                        }
+                        className="mt-2 h-8"
+                      />
+                      {/* Framing only applies to what the page renders in a box;
+                          a download row has no shape to constrain. */}
+                      {item.kind !== 'file' && (
+                        <RatioPicker
+                          size="compact"
+                          label={t('ratio_asset_aria', { name: item.name })}
+                          value={parseRatio(item.asset.ratio)}
+                          onChange={(next: Ratio | null) =>
+                            patch(item.id, { asset: { ...item.asset!, ratio: next } })
+                          }
+                        />
+                      )}
+                    </>
                   )}
                 </div>
 

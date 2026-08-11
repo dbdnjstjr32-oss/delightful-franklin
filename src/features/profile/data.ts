@@ -22,7 +22,7 @@ export const getProfilePortfolios = cache(async (userId: string) => {
   const { data } = await supabase
     .from('portfolios')
     .select(
-      'id, title, thumbnail_url, thumbnail_width, thumbnail_height, category, views, likes, portfolio_tags(tags(name))'
+      'id, title, thumbnail_url, thumbnail_width, thumbnail_height, thumbnail_ratio, category, views, likes, portfolio_tags(tags(name))'
     )
     .eq('user_id', userId)
     // A creator viewing their own public profile should see it as visitors do;
