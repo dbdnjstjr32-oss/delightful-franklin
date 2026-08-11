@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { routing } from '@/i18n/routing'
 import { logger } from '@/lib/logger'
@@ -195,7 +196,12 @@ export async function signup(formData: FormData) {
   redirect(`/${locale}/onboarding`)
 }
 
-export async function updateOnboardingProfile(formData: FormData) {
+/** Writes the profile fields shared by onboarding and the settings screen.
+ *
+ *  Kept separate from the two exported actions because they differ only in
+ *  where they send the user afterwards: onboarding moves them on to the
+ *  studio, settings keeps them where they are. */
+async function persistProfile(formData: FormData): Promise<{ error: string } | { ok: true }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -204,6 +210,7 @@ export async function updateOnboardingProfile(formData: FormData) {
   }
 
   const username = formData.get('username') as string
+  const displayName = ((formData.get('displayName') as string) ?? '').trim()
   const bio = formData.get('bio') as string
   const website = formData.get('website') as string
   const avatarFile = formData.get('avatar') as File | null
@@ -284,6 +291,9 @@ export async function updateOnboardingProfile(formData: FormData) {
   }
 
   const updateData: Record<string, string> = { username, bio, website }
+  // The onboarding form has always had a Display Name field, but this action
+  // never read it — editing the name there silently did nothing.
+  if (displayName) updateData.display_name = displayName
   if (avatar_url) updateData.avatar_url = avatar_url
 
   const { error } = await supabase
@@ -298,6 +308,25 @@ export async function updateOnboardingProfile(formData: FormData) {
     return { error: error.message }
   }
 
+  return { ok: true }
+}
+
+export async function updateOnboardingProfile(formData: FormData) {
+  const result = await persistProfile(formData)
+  if ('error' in result) return result
+
   const locale = await localeFromReferer()
   redirect(`/${locale}/dashboard`)
+}
+
+/** Settings-screen save. Returns instead of redirecting so the form can show a
+ *  confirmation without throwing the user somewhere else. */
+export async function updateProfile(formData: FormData) {
+  const result = await persistProfile(formData)
+  if ('error' in result) return result
+
+  const locale = await localeFromReferer()
+  revalidatePath(`/${locale}/settings`)
+  revalidatePath(`/${locale}/dashboard`)
+  return { ok: true as const }
 }

@@ -5,7 +5,7 @@
 // thumbnail_width/height let the masonry cards reserve their exact height before
 // the image loads (see 0005_media_dimensions.sql).
 export const PORTFOLIO_CARD_COLUMNS =
-  'id, title, thumbnail_url, thumbnail_width, thumbnail_height, category, views, likes, profiles(username, display_name, avatar_url), portfolio_tags(tags(name))'
+  'id, title, thumbnail_url, thumbnail_width, thumbnail_height, thumbnail_ratio, category, views, likes, profiles(username, display_name, avatar_url), portfolio_tags(tags(name))'
 
 /** Every public list filters on this. RLS already hides other people's drafts
  *  (0006_creator_studio.sql), but a signed-in creator can still see their own,

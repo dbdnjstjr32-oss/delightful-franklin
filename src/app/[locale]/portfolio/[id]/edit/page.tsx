@@ -52,6 +52,10 @@ export default async function EditPortfolioPage({ params }: Props) {
           tags,
           status,
           assets: toUploadedAssets(portfolio.portfolio_assets),
+          layout: portfolio.layout,
+          thumbnail_ratio: portfolio.thumbnail_ratio,
+          thumbnail_width: portfolio.thumbnail_width,
+          thumbnail_height: portfolio.thumbnail_height,
         }}
       />
     </div>

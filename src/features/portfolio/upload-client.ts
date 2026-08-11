@@ -128,6 +128,7 @@ export function uploadAsset(
       width: size.width,
       height: size.height,
       caption: '',
+      ratio: null,
     }
   })()
 

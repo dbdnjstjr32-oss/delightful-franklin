@@ -8,6 +8,7 @@ export interface Portfolio {
   thumbnail_url: string | null
   thumbnail_width?: number | null
   thumbnail_height?: number | null
+  thumbnail_ratio?: string | null
   category: string | null
   views: number
   likes: number
@@ -44,11 +45,19 @@ export function PortfolioCard({
 }: PortfolioCardProps) {
   const creatorName = portfolio.profiles?.display_name || portfolio.profiles?.username || null
 
+  // A ratio the creator picked is deliberate framing, so it is used as given —
+  // only the intrinsic size gets clamped, since that is whatever the file
+  // happened to be.
+  const chosen = portfolio.thumbnail_ratio?.split(':').map(Number)
+  const picked =
+    chosen?.length === 2 && chosen[0] > 0 && chosen[1] > 0 ? chosen[0] / chosen[1] : null
+
   const stored =
     portfolio.thumbnail_width && portfolio.thumbnail_height
       ? portfolio.thumbnail_width / portfolio.thumbnail_height
       : null
-  const ratio = Math.min(MAX_RATIO, Math.max(MIN_RATIO, stored ?? FALLBACK_RATIO))
+  const ratio =
+    picked ?? Math.min(MAX_RATIO, Math.max(MIN_RATIO, stored ?? FALLBACK_RATIO))
 
   return (
     <Link href={`/${locale}/portfolio/${portfolio.id}`} className="group block">

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { UploadedAsset } from '@/lib/uploads'
 
 export const PORTFOLIO_ASSET_COLUMNS =
-  'url, storage_path, kind, mime_type, size_bytes, width, height, caption, position'
+  'url, storage_path, kind, mime_type, size_bytes, width, height, caption, ratio, position'
 
 /**
  * Fetch a single portfolio with its creator, tags and attachments.
@@ -47,5 +47,6 @@ export function toUploadedAssets(rows: AssetRow[] | null | undefined): UploadedA
     width: row.width ?? null,
     height: row.height ?? null,
     caption: row.caption ?? '',
+    ratio: row.ratio ?? null,
   }))
 }

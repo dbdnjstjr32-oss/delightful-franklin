@@ -167,7 +167,20 @@
     "draft_badge": "Borrador — solo visible para ti",
     "about": "Sobre este proyecto",
     "gallery_label": "Archivos",
-    "attachment_fallback": "Adjunto"
+    "attachment_fallback": "Adjunto",
+    "ratio_label": "Relación de aspecto",
+    "ratio_hint": "Cómo se enmarca en las cuadrículas y en la página del trabajo. El archivo no se toca.",
+    "ratio_original": "Original",
+    "ratio_cover_aria": "Relación de aspecto de la portada",
+    "ratio_asset_aria": "Relación de aspecto de {name}",
+    "layout_label": "Diseño de página",
+    "layout_help": "Cómo presenta este trabajo sus archivos. Puedes cambiarlo cuando quieras.",
+    "layout_gallery": "Galería",
+    "layout_gallery_hint": "Una pila simple, cada archivo a su propio tamaño.",
+    "layout_deck": "Presentación",
+    "layout_deck_hint": "Diapositivas numeradas en marcos iguales — para presentaciones y capturas.",
+    "layout_case_study": "Caso de estudio",
+    "layout_case_study_hint": "Medios alternando junto a su leyenda, para un recorrido escrito."
   },
   "errors": {
     "not_authenticated": "No has iniciado sesión.",
@@ -186,7 +199,7 @@
     "signin_kicker": "Iniciar sesión",
     "signin_heading": "Bienvenido de nuevo",
     "identifier_label": "Usuario o correo",
-    "identifier_placeholder": "wonseok o name@example.com",
+    "identifier_placeholder": "usuario o name@example.com",
     "password_label": "Contraseña",
     "signin_submit": "Iniciar sesión",
     "signin_submitting": "Iniciando sesión…",
@@ -203,9 +216,9 @@
     "signup_sub": "Publica tu trabajo y déjate descubrir.",
     "username_label": "Usuario",
     "username_hint": "3–20 caracteres: letras, números y guiones bajos.",
-    "username_placeholder": "p. ej. wonseok",
+    "username_placeholder": "p. ej. northlight",
     "display_name_label": "Nombre visible",
-    "display_name_placeholder": "p. ej. 원석",
+    "display_name_placeholder": "Tu nombre o estudio",
     "email_label": "Correo electrónico",
     "email_placeholder": "name@example.com",
     "confirm_password_label": "Confirmar contraseña",
@@ -225,9 +238,10 @@
     "onboarding_submitting": "Guardando…",
     "settings_kicker": "Cuenta",
     "settings_heading": "Ajustes",
-    "settings_profile_title": "Perfil",
-    "settings_profile_body": "Usuario, nombre visible, biografía, avatar y enlaces.",
     "settings_credentials_title": "Correo y contraseña",
-    "settings_credentials_body": "Aún no disponible — los datos de acceso los gestiona tu proveedor por ahora."
+    "settings_credentials_body": "Aún no disponible — los datos de acceso los gestiona tu proveedor por ahora.",
+    "settings_save": "Guardar perfil",
+    "settings_saved": "Perfil guardado.",
+    "settings_view_public": "Tu perfil público:"
   }
 }

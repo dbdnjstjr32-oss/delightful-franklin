@@ -10,7 +10,9 @@ import { CATEGORIES } from '@/lib/categories'
 import { CoverPicker } from './CoverPicker'
 import { AssetUploader } from './AssetUploader'
 import { TagInput } from './TagInput'
+import { LayoutPicker } from './LayoutPicker'
 import type { UploadedAsset } from '@/lib/uploads'
+import { parseLayout, type Layout, type Ratio } from '@/lib/presentation'
 
 const MAX_DESCRIPTION = 2000
 
@@ -24,6 +26,10 @@ export type PortfolioFormDefaults = {
   tags?: string[]
   status?: 'draft' | 'published'
   assets?: UploadedAsset[]
+  layout?: string | null
+  thumbnail_ratio?: string | null
+  thumbnail_width?: number | null
+  thumbnail_height?: number | null
 }
 
 type Props = {
@@ -39,6 +45,7 @@ export function PortfolioForm({ action, userId, defaults }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [described, setDescribed] = useState(defaults?.description?.length ?? 0)
+  const [layout, setLayout] = useState<Layout>(parseLayout(defaults?.layout))
   const formRef = useRef<HTMLFormElement>(null)
   const statusRef = useRef<HTMLInputElement>(null)
 
@@ -78,7 +85,13 @@ export function PortfolioForm({ action, userId, defaults }: Props) {
         defaultValue={defaults?.status ?? 'published'}
       />
 
-      <CoverPicker userId={userId} defaultUrl={defaults?.thumbnail_url ?? null} />
+      <CoverPicker
+        userId={userId}
+        defaultUrl={defaults?.thumbnail_url ?? null}
+        defaultRatio={(defaults?.thumbnail_ratio as Ratio | null) ?? null}
+        defaultWidth={defaults?.thumbnail_width ?? null}
+        defaultHeight={defaults?.thumbnail_height ?? null}
+      />
 
       <Field label={t('title_label')} htmlFor="title">
         <Input
@@ -137,6 +150,12 @@ export function PortfolioForm({ action, userId, defaults }: Props) {
         <span className="overline block text-muted-foreground">{t('files_label')}</span>
         <p className="text-sm text-muted-foreground">{t('files_help')}</p>
         <AssetUploader userId={userId} defaultAssets={defaults?.assets ?? []} />
+      </div>
+
+      <div className="space-y-3">
+        <span className="overline block text-muted-foreground">{t('layout_label')}</span>
+        <p className="text-sm text-muted-foreground">{t('layout_help')}</p>
+        <LayoutPicker name="layout" value={layout} onChange={setLayout} />
       </div>
 
       <Field label={t('link_label')} htmlFor="project_url" hint={tCommon('optional')}>

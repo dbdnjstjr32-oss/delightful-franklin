@@ -44,7 +44,8 @@ export function assetKind(mimeType: string): AssetKind {
 }
 
 /** What the uploader hands to the form, and what the server re-validates before
- *  writing it through set_portfolio_assets. */
+ *  writing it through set_portfolio_assets. `ratio` is the creator's chosen
+ *  display frame (see lib/presentation.ts); null means the file's own shape. */
 export type UploadedAsset = {
   url: string
   storage_path: string
@@ -54,6 +55,7 @@ export type UploadedAsset = {
   width: number | null
   height: number | null
   caption: string
+  ratio: string | null
 }
 
 const EXTENSIONS: Record<string, string> = {

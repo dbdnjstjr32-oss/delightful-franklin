@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
+import { ProfileSettingsForm } from '@/features/auth/components/ProfileSettingsForm'
 
 export default async function SettingsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -14,34 +15,34 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
     redirect(`/${locale}/login`)
   }
 
-  const [t, tCommon] = await Promise.all([
-    getTranslations({ locale, namespace: 'auth' }),
-    getTranslations({ locale, namespace: 'common' }),
-  ])
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, display_name, bio, website, avatar_url')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  const t = await getTranslations({ locale, namespace: 'auth' })
 
   return (
-    <div className="mx-auto min-h-[70vh] w-full max-w-3xl px-5 pt-36 pb-24 sm:px-8">
+    <div className="mx-auto min-h-[70vh] w-full max-w-2xl px-5 pt-36 pb-24 sm:px-8">
       <p className="overline text-muted-foreground">{t('settings_kicker')}</p>
       <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest sm:text-6xl">
         {t('settings_heading')}
       </h1>
 
-      <dl className="mt-12 divide-y divide-border border-y border-border">
-        <div className="flex flex-wrap items-center justify-between gap-4 py-6">
-          <div>
-            <dt className="font-display text-xl font-bold tracking-tightest">
-              {t('settings_profile_title')}
-            </dt>
-            <dd className="mt-1 text-sm text-muted-foreground">{t('settings_profile_body')}</dd>
-          </div>
-          <Link
-            href={`/${locale}/onboarding`}
-            className="inline-flex h-11 items-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
-            {tCommon('edit')}
-          </Link>
-        </div>
+      {/* The profile used to be editable only by walking back through the
+          onboarding funnel, which then dropped the user at the studio. */}
+      <ProfileSettingsForm
+        profile={{
+          username: profile?.username ?? null,
+          display_name: profile?.display_name ?? null,
+          bio: profile?.bio ?? null,
+          website: profile?.website ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+        }}
+      />
 
+      <dl className="mt-16 divide-y divide-border border-y border-border">
         <div className="py-6">
           <dt className="font-display text-xl font-bold tracking-tightest">
             {t('settings_credentials_title')}
@@ -49,6 +50,18 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
           <dd className="mt-1 text-sm text-muted-foreground">{t('settings_credentials_body')}</dd>
         </div>
       </dl>
+
+      {profile?.username && (
+        <p className="mt-8 text-sm text-muted-foreground">
+          {t('settings_view_public')}{' '}
+          <Link
+            href={`/${locale}/u/${profile.username}`}
+            className="font-semibold text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline"
+          >
+            @{profile.username}
+          </Link>
+        </p>
+      )}
     </div>
   )
 }
