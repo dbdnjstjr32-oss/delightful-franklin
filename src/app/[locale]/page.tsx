@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { PORTFOLIO_CARD_COLUMNS } from '@/lib/queries'
-import { translateText } from '@/lib/translate'
+import { PORTFOLIO_CARD_COLUMNS, PUBLISHED } from '@/lib/queries'
 import type { Portfolio } from '@/components/portfolio/PortfolioCard'
 import { HeroSection } from '@/features/landing/HeroSection'
 import { FeaturedSection } from '@/features/landing/FeaturedSection'
@@ -24,11 +23,13 @@ export default async function HomePage({ params }: Props) {
     supabase
       .from('portfolios')
       .select(PORTFOLIO_CARD_COLUMNS)
+      .eq('status', PUBLISHED)
       .eq('featured', true)
       .limit(6),
     supabase
       .from('portfolios')
       .select(PORTFOLIO_CARD_COLUMNS)
+      .eq('status', PUBLISHED)
       .order('likes', { ascending: false })
       .order('views', { ascending: false })
       .limit(6),
@@ -44,16 +45,13 @@ export default async function HomePage({ params }: Props) {
     (p: { portfolios: { count: number }[] }) => p.portfolios?.[0]?.count >= 1
   ).slice(0, 6)
 
-  // Localize card titles for the current locale (cached; falls back to source).
-  const localizeTitles = (rows: Array<{ title: string }> | null) =>
-    Promise.all((rows ?? []).map(async (p) => ({ ...p, title: await translateText(p.title, locale) })))
-  const [featuredL, trendingL] = await Promise.all([localizeTitles(featured), localizeTitles(trending)])
-
+  // Card titles are shown as written. They are the names of the works, so
+  // machine-translating them renamed every piece per locale.
   return (
     <>
       <HeroSection locale={locale} />
-      <FeaturedSection portfolios={featuredL as unknown as Portfolio[]} locale={locale} />
-      <TrendingSection portfolios={trendingL as unknown as Portfolio[]} locale={locale} />
+      <FeaturedSection portfolios={(featured ?? []) as unknown as Portfolio[]} locale={locale} />
+      <TrendingSection portfolios={(trending ?? []) as unknown as Portfolio[]} locale={locale} />
       <NewCreatorsSection creators={filteredNewCreators} locale={locale} />
       <CategoriesSection locale={locale} />
       <CTASection locale={locale} />

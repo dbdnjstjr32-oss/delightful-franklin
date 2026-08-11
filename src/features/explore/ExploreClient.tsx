@@ -9,7 +9,7 @@ import { SearchBar } from '@/features/explore/SearchBar'
 import { FilterBar, type TabKey } from '@/features/explore/FilterBar'
 import { ExploreSkeleton } from '@/features/explore/ExploreSkeleton'
 import { createClient } from '@/lib/supabase/client'
-import { PORTFOLIO_CARD_COLUMNS } from '@/lib/queries'
+import { PORTFOLIO_CARD_COLUMNS, PUBLISHED } from '@/lib/queries'
 import { useReveal } from '@/lib/motion'
 
 const PAGE_SIZE = 24
@@ -61,7 +61,10 @@ export function ExploreClient({
   /** Fetch one page of portfolios for the current tab/category/query. */
   const fetchPage = useCallback(
     async (offset: number): Promise<Portfolio[]> => {
-      let qb = supabase.from('portfolios').select(PORTFOLIO_CARD_COLUMNS)
+      let qb = supabase
+        .from('portfolios')
+        .select(PORTFOLIO_CARD_COLUMNS)
+        .eq('status', PUBLISHED)
 
       if (searching) {
         // Full-text search over the `fts` generated column (GIN-indexed) — this

@@ -32,6 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await supabase
       .from('portfolios')
       .select('id, updated_at')
+      // Drafts have no public URL to advertise.
+      .eq('status', 'published')
       .order('updated_at', { ascending: false })
       .range(from, to)
     return data ?? []

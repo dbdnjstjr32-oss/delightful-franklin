@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { updateOnboardingProfile } from '@/features/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +17,7 @@ export function OnboardingForm({
   defaultName: string
   defaultUsername: string | null
 }) {
+  const t = useTranslations('auth')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
@@ -47,13 +49,11 @@ export function OnboardingForm({
 
   return (
     <div>
-      <p className="overline text-muted-foreground">One last step</p>
+      <p className="overline text-muted-foreground">{t('onboarding_kicker')}</p>
       <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tightest text-foreground sm:text-6xl">
-        Complete your profile
+        {t('onboarding_heading')}
       </h1>
-      <p className="mt-5 max-w-sm text-muted-foreground">
-        You can change any of this later.
-      </p>
+      <p className="mt-5 max-w-sm text-muted-foreground">{t('onboarding_sub')}</p>
 
       <form action={handleSubmit} className="mt-10 space-y-6">
         <div className="flex items-center gap-5">
@@ -62,7 +62,7 @@ export function OnboardingForm({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            aria-label="Upload avatar"
+            aria-label={t('avatar_aria')}
             className="group relative flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary ring-1 ring-border"
           >
             {preview ? (
@@ -75,9 +75,9 @@ export function OnboardingForm({
             </span>
           </button>
           <p className="text-sm text-muted-foreground">
-            Add a profile photo
+            {t('avatar_prompt')}
             <br />
-            <span className="text-xs">Optional</span>
+            <span className="text-xs">{t('avatar_optional')}</span>
           </p>
         </div>
         <input
@@ -89,13 +89,13 @@ export function OnboardingForm({
           onChange={handleFileChange}
         />
 
-        <Field label="Username" htmlFor="username" hint="3–20 characters: letters, numbers, underscores.">
+        <Field label={t('username_label')} htmlFor="username" hint={t('username_hint')}>
           <Input
             id="username"
             name="username"
             variant="field"
             defaultValue={defaultUsername || ''}
-            placeholder="e.g. wonseok"
+            placeholder={t('username_placeholder')}
             required
             pattern="^[a-zA-Z0-9_]{3,20}$"
             aria-invalid={!!error}
@@ -103,35 +103,35 @@ export function OnboardingForm({
           />
         </Field>
 
-        <Field label="Display Name" htmlFor="displayName">
+        <Field label={t('display_name_label')} htmlFor="displayName">
           <Input
             id="displayName"
             name="displayName"
             variant="field"
             defaultValue={defaultName}
-            placeholder="e.g. 원석"
+            placeholder={t('display_name_placeholder')}
             aria-invalid={!!error}
             aria-describedby={error ? 'onboarding-error' : undefined}
           />
         </Field>
 
-        <Field label="Bio" htmlFor="bio">
+        <Field label={t('bio_label')} htmlFor="bio">
           <Textarea
             id="bio"
             name="bio"
             variant="field"
             className="h-24"
-            placeholder="e.g. 3D Artist & Motion Designer based in Seoul"
+            placeholder={t('bio_placeholder')}
           />
         </Field>
 
-        <Field label="Website or social link" htmlFor="website">
+        <Field label={t('website_label')} htmlFor="website">
           <Input
             id="website"
             name="website"
             type="url"
             variant="field"
-            placeholder="https://instagram.com/…"
+            placeholder={t('website_placeholder')}
             aria-invalid={!!error}
             aria-describedby={error ? 'onboarding-error' : undefined}
           />
@@ -145,7 +145,7 @@ export function OnboardingForm({
           className="h-12 w-full rounded-full text-base font-semibold"
           disabled={isPending}
         >
-          {isPending ? 'Saving…' : 'Finish'}
+          {isPending ? t('onboarding_submitting') : t('onboarding_submit')}
         </Button>
       </form>
     </div>

@@ -1,13 +1,18 @@
 'use client'
 
-import { useState, useEffect, useRef, useTransition } from 'react'
-import Image from 'next/image'
+import { useRef, useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Field, FormError } from '@/components/ui/form-parts'
-import { ImagePlus } from 'lucide-react'
 import { CATEGORIES } from '@/lib/categories'
+import { CoverPicker } from './CoverPicker'
+import { AssetUploader } from './AssetUploader'
+import { TagInput } from './TagInput'
+import type { UploadedAsset } from '@/lib/uploads'
+
+const MAX_DESCRIPTION = 2000
 
 export type PortfolioFormDefaults = {
   id?: string
@@ -17,116 +22,65 @@ export type PortfolioFormDefaults = {
   project_url?: string | null
   thumbnail_url?: string | null
   tags?: string[]
+  status?: 'draft' | 'published'
+  assets?: UploadedAsset[]
 }
 
 type Props = {
   action: (formData: FormData) => Promise<{ error?: string } | void>
-  submitLabel: string
+  userId: string
   defaults?: PortfolioFormDefaults
 }
 
-export function PortfolioForm({ action, submitLabel, defaults }: Props) {
+export function PortfolioForm({ action, userId, defaults }: Props) {
+  const t = useTranslations('work')
+  const tc = useTranslations('categories')
+  const tCommon = useTranslations('common')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const [preview, setPreview] = useState<string | null>(null)
-  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
-  const [dragging, setDragging] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [described, setDescribed] = useState(defaults?.description?.length ?? 0)
+  const formRef = useRef<HTMLFormElement>(null)
+  const statusRef = useRef<HTMLInputElement>(null)
 
-  // Revoke the blob URL when the preview changes / unmounts.
-  useEffect(() => {
-    if (!preview) return
-    return () => URL.revokeObjectURL(preview)
-  }, [preview])
-
-  async function acceptFile(file: File) {
-    setPreview(URL.createObjectURL(file))
-
-    // Measure the cover so the masonry cards can reserve its exact height.
-    // A failure here is not worth blocking the upload — the card falls back
-    // to 4:3 when the size is unknown.
-    try {
-      const bitmap = await createImageBitmap(file)
-      setDimensions({ width: bitmap.width, height: bitmap.height })
-      bitmap.close()
-    } catch {
-      setDimensions(null)
-    }
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) void acceptFile(file)
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragging(false)
-    const file = e.dataTransfer.files?.[0]
-    if (!file || !file.type.startsWith('image/')) return
-    // Put the dropped file on the real input so it is part of the submission.
-    if (fileRef.current) fileRef.current.files = e.dataTransfer.files
-    void acceptFile(file)
-  }
+  const isPublished = defaults?.status === 'published'
+  const editing = !!defaults?.id
 
   function handleSubmit(formData: FormData) {
     setError(null)
+
+    // The cover and the attachments upload on selection, not on submit. If one
+    // is still in flight its metadata is not in the form yet, so saving now
+    // would quietly drop the file the creator is watching upload.
+    if (formData.get('cover_pending') || formData.get('assets_pending')) {
+      setError(t('upload_in_progress'))
+      return
+    }
+
     startTransition(async () => {
       const result = await action(formData)
       if (result?.error) setError(result.error)
     })
   }
 
-  const currentImage = preview ?? defaults?.thumbnail_url ?? null
+  /** Both buttons submit the same form; only the status they stamp differs. */
+  function submitAs(status: 'draft' | 'published') {
+    if (statusRef.current) statusRef.current.value = status
+    formRef.current?.requestSubmit()
+  }
 
   return (
-    <form action={handleSubmit} className="space-y-8">
+    <form ref={formRef} action={handleSubmit} className="space-y-8">
       {defaults?.id && <input type="hidden" name="id" value={defaults.id} />}
+      <input
+        ref={statusRef}
+        type="hidden"
+        name="status"
+        defaultValue={defaults?.status ?? 'published'}
+      />
 
-      <div className="space-y-2">
-        <span className="overline block text-muted-foreground">Cover image</span>
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragging(true)
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-          className={`group relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-md border border-dashed transition-colors ${
-            dragging ? 'border-primary bg-primary/10' : 'border-border bg-secondary/40'
-          }`}
-        >
-          {currentImage ? (
-            <Image src={currentImage} alt="" fill className="object-cover" unoptimized />
-          ) : (
-            <span className="flex flex-col items-center gap-2 text-muted-foreground">
-              <ImagePlus size={24} aria-hidden />
-              <span className="text-sm">Drop an image here, or click to choose</span>
-            </span>
-          )}
-          <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 text-sm font-medium text-background opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-            {currentImage ? 'Change image' : 'Choose image'}
-          </span>
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          name="thumbnail"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        {dimensions && (
-          <>
-            <input type="hidden" name="thumbnail_width" value={dimensions.width} />
-            <input type="hidden" name="thumbnail_height" value={dimensions.height} />
-          </>
-        )}
-      </div>
+      <CoverPicker userId={userId} defaultUrl={defaults?.thumbnail_url ?? null} />
 
-      <Field label="Title" htmlFor="title">
+      <Field label={t('title_label')} htmlFor="title">
         <Input
           id="title"
           name="title"
@@ -134,13 +88,13 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
           required
           maxLength={120}
           defaultValue={defaults?.title ?? ''}
-          placeholder="Give your work a title"
+          placeholder={t('title_placeholder')}
           aria-invalid={!!error}
           aria-describedby={error ? 'portfolio-error' : undefined}
         />
       </Field>
 
-      <Field label="Category" htmlFor="category">
+      <Field label={t('category_label')} htmlFor="category">
         <select
           id="category"
           name="category"
@@ -149,29 +103,43 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
           className="h-12 w-full rounded-md border border-input bg-secondary/50 px-4 text-base text-foreground"
         >
           <option value="" disabled>
-            Choose a category
+            {t('category_placeholder')}
           </option>
           {CATEGORIES.map((c) => (
             <option key={c.key} value={c.key}>
-              {c.label}
+              {tc(c.key)}
             </option>
           ))}
         </select>
       </Field>
 
-      <Field label="Description" htmlFor="description">
+      <Field
+        label={t('description_label')}
+        htmlFor="description"
+        hint={t('description_hint', {
+          count: described.toLocaleString(),
+          max: MAX_DESCRIPTION.toLocaleString(),
+        })}
+      >
         <Textarea
           id="description"
           name="description"
           variant="field"
-          maxLength={2000}
+          maxLength={MAX_DESCRIPTION}
           defaultValue={defaults?.description ?? ''}
-          placeholder="What is this project, and what did you set out to do?"
+          onChange={(e) => setDescribed(e.target.value.length)}
+          placeholder={t('description_placeholder')}
           className="h-36"
         />
       </Field>
 
-      <Field label="Project link" htmlFor="project_url" hint="Optional.">
+      <div className="space-y-2">
+        <span className="overline block text-muted-foreground">{t('files_label')}</span>
+        <p className="text-sm text-muted-foreground">{t('files_help')}</p>
+        <AssetUploader userId={userId} defaultAssets={defaults?.assets ?? []} />
+      </div>
+
+      <Field label={t('link_label')} htmlFor="project_url" hint={tCommon('optional')}>
         <Input
           id="project_url"
           name="project_url"
@@ -182,26 +150,34 @@ export function PortfolioForm({ action, submitLabel, defaults }: Props) {
         />
       </Field>
 
-      <Field label="Tags" htmlFor="tags" hint="Comma separated, up to 8.">
-        <Input
-          id="tags"
-          name="tags"
-          variant="field"
-          defaultValue={(defaults?.tags ?? []).join(', ')}
-          placeholder="branding, motion, 3d"
-        />
+      <Field label={t('tags_label')} htmlFor="tags" hint={t('tags_hint')}>
+        <TagInput name="tags" defaultValue={defaults?.tags ?? []} />
       </Field>
 
       {error && <FormError id="portfolio-error">{error}</FormError>}
 
-      <Button
-        type="submit"
-        size="lg"
-        disabled={isPending}
-        className="h-12 w-full rounded-full text-base font-semibold"
-      >
-        {isPending ? 'Saving…' : submitLabel}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row-reverse">
+        <Button
+          type="button"
+          size="lg"
+          disabled={isPending}
+          onClick={() => submitAs('published')}
+          className="h-12 flex-1 rounded-full text-base font-semibold"
+        >
+          {isPending ? t('saving') : isPublished ? t('save_changes') : t('publish')}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          disabled={isPending}
+          onClick={() => submitAs('draft')}
+          className="h-12 rounded-full px-6 text-base font-semibold sm:flex-none"
+        >
+          {isPublished ? t('unpublish') : editing ? t('keep_draft') : t('save_draft')}
+        </Button>
+      </div>
+      <p className="text-center text-xs text-muted-foreground">{t('drafts_note')}</p>
     </form>
   )
 }

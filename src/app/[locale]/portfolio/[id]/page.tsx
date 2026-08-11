@@ -8,11 +8,13 @@ import { Pencil } from 'lucide-react'
 import type { Metadata } from 'next'
 import { PortfolioHero } from '@/features/portfolio/PortfolioHero'
 import { PortfolioStory } from '@/features/portfolio/PortfolioStory'
+import { PortfolioGallery } from '@/features/portfolio/PortfolioGallery'
 import { CreatorCard } from '@/features/portfolio/CreatorCard'
 import { PortfolioJsonLd } from '@/components/seo/PortfolioJsonLd'
 import { LikeButton } from '@/features/portfolio/components/LikeButton'
-import { getPortfolioById } from '@/features/portfolio/data'
-import { translateAll } from '@/lib/translate'
+import { getPortfolioById, toUploadedAssets } from '@/features/portfolio/data'
+import { translateText } from '@/lib/translate'
+import { getTranslations } from 'next-intl/server'
 
 type Props = {
   params: Promise<{ locale: string; id: string }>
@@ -93,10 +95,19 @@ export default async function PortfolioDetailPage({ params }: Props) {
     initialLiked = !!likeRow
   }
 
-  // Localize creator-authored text for the current locale (no-op for the source
-  // language; falls back to the original on any failure).
-  const [tTitle, tDescription] = await translateAll([portfolio.title, portfolio.description], locale)
-  const localizedPortfolio = { ...portfolio, title: tTitle, description: tDescription }
+  // Localize the description for the current locale (no-op when it is already
+  // in that language; falls back to the original on any failure). The title is
+  // left alone — it is the name of the work, not prose to be rendered into
+  // another language.
+  const localizedPortfolio = {
+    ...portfolio,
+    description: await translateText(portfolio.description, locale),
+  }
+
+  const [tWork, tCommon] = await Promise.all([
+    getTranslations({ locale, namespace: 'work' }),
+    getTranslations({ locale, namespace: 'common' }),
+  ])
 
   return (
     <div className="pt-16">
@@ -110,13 +121,20 @@ export default async function PortfolioDetailPage({ params }: Props) {
         creator={profile}
       />
       {isOwner && (
-        <div className="mx-auto flex max-w-[110rem] justify-end px-5 pt-6 sm:px-8">
+        <div className="mx-auto flex max-w-[110rem] items-center justify-end gap-3 px-5 pt-6 sm:px-8">
+          {portfolio.status === 'draft' && (
+            // Only the owner can load this page while it is a draft (RLS), so
+            // the badge doubles as the reminder that nobody else can see it.
+            <span className="overline rounded-full border border-border px-3 py-1.5 text-muted-foreground">
+              {tWork('draft_badge')}
+            </span>
+          )}
           <Link
             href={`/${locale}/portfolio/${portfolio.id}/edit`}
             className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
           >
             <Pencil size={14} aria-hidden />
-            Edit
+            {tCommon('edit')}
           </Link>
         </div>
       )}
@@ -134,6 +152,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         }
       />
       <PortfolioStory portfolio={localizedPortfolio} />
+      <PortfolioGallery assets={toUploadedAssets(portfolio.portfolio_assets)} />
       <CreatorCard profile={profile} locale={locale} />
     </div>
   )

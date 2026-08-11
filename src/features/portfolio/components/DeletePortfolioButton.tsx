@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { deletePortfolio } from '@/features/portfolio/actions'
@@ -21,6 +22,8 @@ import {
  *  main thread. The destructive action stays behind an explicit second step.
  */
 export function DeletePortfolioButton({ id, title }: { id: string; title: string }) {
+  const t = useTranslations('studio')
+  const tCommon = useTranslations('common')
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -40,24 +43,21 @@ export function DeletePortfolioButton({ id, title }: { id: string; title: string
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        aria-label={`Delete ${title}`}
+        aria-label={t('delete_aria', { title })}
         className="inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 size={16} aria-hidden />
       </DialogTrigger>
       <DialogContent>
         <DialogTitle className="font-display text-xl tracking-tightest">
-          Delete this work?
+          {t('delete_title')}
         </DialogTitle>
-        <DialogDescription>
-          “{title}” will be removed permanently, along with its views and appreciations. This cannot
-          be undone.
-        </DialogDescription>
+        <DialogDescription>{t('delete_body', { title })}</DialogDescription>
         <DialogFooter className="flex-row justify-end gap-2">
           <DialogClose
             render={<Button variant="ghost" size="lg" className="h-11 rounded-full px-5" />}
           >
-            Cancel
+            {tCommon('cancel')}
           </DialogClose>
           <Button
             variant="destructive"
@@ -66,7 +66,7 @@ export function DeletePortfolioButton({ id, title }: { id: string; title: string
             onClick={handleDelete}
             disabled={isPending}
           >
-            {isPending ? 'Deleting…' : 'Delete'}
+            {isPending ? t('deleting') : tCommon('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>
