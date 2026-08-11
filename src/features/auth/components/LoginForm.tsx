@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { loginWithCredentials, loginWithGoogle } from '../actions'
+import { toast } from 'sonner'
+import { loginWithCredentials, loginWithGoogle, resendConfirmation } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FormError } from '@/components/ui/form-parts'
@@ -26,16 +27,38 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
   const [error, setError] = useState<string | null>(errorKey ? t(errorKey) : null)
   const noticeMessage = noticeKey ? t(noticeKey) : undefined
   const [isPending, startTransition] = useTransition()
+  /** Set when sign-in failed specifically because the address is unconfirmed,
+   *  which is the one failure the user can act on from here. */
+  const [unconfirmed, setUnconfirmed] = useState<string | null>(null)
   const params = useParams()
   const locale = params.locale as string
 
   async function handleSubmit(formData: FormData) {
     setError(null)
+    setUnconfirmed(null)
     startTransition(async () => {
       const result = await loginWithCredentials(formData)
       if (result?.error) {
         setError(result.error)
+        if ('code' in result && result.code === 'email_not_confirmed') {
+          setUnconfirmed(result.email)
+        }
       }
+    })
+  }
+
+  function handleResend() {
+    if (!unconfirmed) return
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('email', unconfirmed)
+      const result = await resendConfirmation(formData)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(result.message)
+      setUnconfirmed(null)
     })
   }
 
@@ -95,6 +118,17 @@ export function LoginForm({ notice, initialError }: { notice?: string; initialEr
         </Field>
 
         {error && <FormError id="login-error">{error}</FormError>}
+
+        {unconfirmed && (
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isPending}
+            className="w-full text-sm font-semibold text-foreground decoration-primary decoration-2 underline-offset-4 hover:underline disabled:opacity-50"
+          >
+            {t('resend_confirmation')}
+          </button>
+        )}
 
         <Button type="submit" size="lg" className="h-12 w-full rounded-full text-base font-semibold" disabled={isPending}>
           {isPending ? t('signin_submitting') : t('signin_submit')}
