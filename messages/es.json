@@ -193,7 +193,11 @@
     "cover_missing": "Esa imagen de portada ya no está en el almacenamiento.",
     "cover_type": "La portada debe ser una imagen PNG, JPEG, WebP o GIF.",
     "cover_size": "La portada debe pesar 10MB o menos.",
-    "create_failed": "No se pudo crear el portafolio."
+    "create_failed": "No se pudo crear el portafolio.",
+    "invalid_credentials": "Ese usuario o contraseña no es correcto.",
+    "email_not_confirmed": "Esta dirección aún no se ha confirmado. Revisa tu bandeja o vuelve a enviar el correo.",
+    "resend_sent": "Correo de confirmación enviado. Revisa tu bandeja.",
+    "resend_failed": "No se pudo enviar el correo de confirmación. Inténtalo en unos minutos."
   },
   "auth": {
     "signin_kicker": "Iniciar sesión",
@@ -242,6 +246,7 @@
     "settings_credentials_body": "Aún no disponible — los datos de acceso los gestiona tu proveedor por ahora.",
     "settings_save": "Guardar perfil",
     "settings_saved": "Perfil guardado.",
-    "settings_view_public": "Tu perfil público:"
+    "settings_view_public": "Tu perfil público:",
+    "resend_confirmation": "Reenviar el correo de confirmación"
   }
 }

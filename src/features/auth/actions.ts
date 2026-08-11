@@ -4,9 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import { headers } from 'next/headers'
 import { routing } from '@/i18n/routing'
 import { logger } from '@/lib/logger'
+
+/** Auth failures are shown to the user, so they go through the message
+ *  catalogue rather than being passed through from Supabase in English. */
+async function authErrors() {
+  return getTranslations({ locale: await localeFromReferer(), namespace: 'errors' })
+}
 
 const ALLOWED_AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024 // 5MB
@@ -66,6 +73,16 @@ export async function loginWithCredentials(formData: FormData) {
   })
 
   if (authError) {
+    const t = await authErrors()
+    // Supabase returns these in English regardless of locale, and
+    // "Email not confirmed" is a dead end without somewhere to go next — the
+    // form uses `code` to offer a resend.
+    if (authError.code === 'email_not_confirmed') {
+      return { error: t('email_not_confirmed'), code: 'email_not_confirmed' as const, email }
+    }
+    if (authError.code === 'invalid_credentials') {
+      return { error: t('invalid_credentials') }
+    }
     return { error: authError.message }
   }
 
@@ -87,6 +104,42 @@ export async function loginWithCredentials(formData: FormData) {
   // Successful login, redirect to dashboard
   const locale = await localeFromReferer()
   redirect(`/${locale}/dashboard`)
+}
+
+/** Re-sends the signup confirmation email.
+ *
+ *  Without this, an account created while "Confirm email" is on has no way
+ *  forward from the login form if the first message never arrived — Supabase's
+ *  built-in SMTP is heavily rate-limited, so that is a common state rather
+ *  than an edge case.
+ */
+export async function resendConfirmation(formData: FormData) {
+  const supabase = await createClient()
+  const t = await authErrors()
+  const email = ((formData.get('email') as string) ?? '').trim()
+
+  if (!email.includes('@')) {
+    return { error: t('resend_failed') }
+  }
+
+  const origin = await originFromHeaders()
+  const locale = await localeFromReferer()
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: { emailRedirectTo: `${origin}/${locale}/auth/callback` },
+  })
+
+  // Deliberately does not distinguish "no such account" from a send failure:
+  // the login form is unauthenticated, so a precise answer would confirm
+  // whether an address is registered here.
+  if (error) {
+    logger.warn('confirmation resend failed', { error: error.message })
+    return { error: t('resend_failed') }
+  }
+
+  return { ok: true as const, message: t('resend_sent') }
 }
 
 export async function signOut() {

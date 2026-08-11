@@ -193,7 +193,11 @@
     "cover_missing": "That cover image is no longer in storage.",
     "cover_type": "Cover must be a PNG, JPEG, WebP, or GIF image.",
     "cover_size": "Cover must be 10MB or smaller.",
-    "create_failed": "Could not create portfolio."
+    "create_failed": "Could not create portfolio.",
+    "invalid_credentials": "That username or password is not right.",
+    "email_not_confirmed": "This address has not been confirmed yet. Check your inbox, or send the email again.",
+    "resend_sent": "Confirmation email sent. Check your inbox.",
+    "resend_failed": "Could not send the confirmation email. Try again in a few minutes."
   },
   "auth": {
     "signin_kicker": "Sign in",
@@ -242,6 +246,7 @@
     "settings_credentials_body": "Not available yet — sign-in details are managed by your provider for now.",
     "settings_save": "Save profile",
     "settings_saved": "Profile saved.",
-    "settings_view_public": "Your public profile:"
+    "settings_view_public": "Your public profile:",
+    "resend_confirmation": "Send the confirmation email again"
   }
 }

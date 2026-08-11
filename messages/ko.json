@@ -193,7 +193,11 @@
     "cover_missing": "그 커버 이미지가 스토리지에 없습니다.",
     "cover_type": "커버는 PNG, JPEG, WebP, GIF 이미지여야 합니다.",
     "cover_size": "커버는 10MB 이하여야 합니다.",
-    "create_failed": "작품을 만들지 못했습니다."
+    "create_failed": "작품을 만들지 못했습니다.",
+    "invalid_credentials": "아이디 또는 비밀번호가 맞지 않아요.",
+    "email_not_confirmed": "아직 확인되지 않은 주소예요. 메일함을 확인하거나 확인 메일을 다시 보내세요.",
+    "resend_sent": "확인 메일을 보냈어요. 메일함을 확인해주세요.",
+    "resend_failed": "확인 메일을 보내지 못했어요. 몇 분 뒤에 다시 시도해주세요."
   },
   "auth": {
     "signin_kicker": "로그인",
@@ -242,6 +246,7 @@
     "settings_credentials_body": "아직 지원하지 않아요 — 로그인 정보는 현재 공급자가 관리합니다.",
     "settings_save": "프로필 저장",
     "settings_saved": "프로필을 저장했어요.",
-    "settings_view_public": "공개 프로필:"
+    "settings_view_public": "공개 프로필:",
+    "resend_confirmation": "확인 메일 다시 보내기"
   }
 }

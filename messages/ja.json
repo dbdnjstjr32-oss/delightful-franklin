@@ -193,7 +193,11 @@
     "cover_missing": "そのカバー画像はストレージにありません。",
     "cover_type": "カバーは PNG、JPEG、WebP、GIF 画像である必要があります。",
     "cover_size": "カバーは10MB以下にしてください。",
-    "create_failed": "作品を作成できませんでした。"
+    "create_failed": "作品を作成できませんでした。",
+    "invalid_credentials": "ユーザー名またはパスワードが正しくありません。",
+    "email_not_confirmed": "このアドレスはまだ確認されていません。受信箱を確認するか、確認メールを再送してください。",
+    "resend_sent": "確認メールを送信しました。受信箱をご確認ください。",
+    "resend_failed": "確認メールを送信できませんでした。数分後にもう一度お試しください。"
   },
   "auth": {
     "signin_kicker": "ログイン",
@@ -242,6 +246,7 @@
     "settings_credentials_body": "まだ利用できません — ログイン情報は現在プロバイダーが管理しています。",
     "settings_save": "プロフィールを保存",
     "settings_saved": "プロフィールを保存しました。",
-    "settings_view_public": "公開プロフィール:"
+    "settings_view_public": "公開プロフィール:",
+    "resend_confirmation": "確認メールを再送する"
   }
 }
