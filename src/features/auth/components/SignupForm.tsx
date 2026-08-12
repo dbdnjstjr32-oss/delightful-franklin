@@ -23,7 +23,7 @@ export function SignupForm() {
     const confirmPassword = formData.get('confirmPassword') as string
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setError(t('passwords_mismatch'))
       return
     }
 
@@ -134,6 +134,10 @@ export function SignupForm() {
         >
           {isPending ? t('signup_submitting') : t('signup_submit')}
         </Button>
+        {/* Set expectations before the confirmation email arrives, not after —
+            the default sender is Supabase's shared "noreply" address, which
+            reads as unfamiliar or spam-like without warning. */}
+        <p className="text-center text-xs text-muted-foreground">{t('signup_email_notice')}</p>
 
         <div className="relative py-2">
           <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-border" />

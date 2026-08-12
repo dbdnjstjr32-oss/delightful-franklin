@@ -213,7 +213,7 @@
     "to_signup": "Regístrate",
     "have_account": "¿Ya tienes una cuenta?",
     "to_signin": "Inicia sesión",
-    "notice_confirm_email": "Revisa tu correo para confirmar la cuenta y luego inicia sesión.",
+    "notice_confirm_email": "Enviamos un correo de confirmación. El remitente puede parecer desconocido (una dirección automática \"noreply\", asunto \"Confirm your signup\") — revisa la carpeta de spam si no aparece. Confírmalo y luego inicia sesión.",
     "error_auth_failed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
     "signup_kicker": "Registro",
     "signup_heading": "Crea una cuenta",
@@ -247,6 +247,8 @@
     "settings_save": "Guardar perfil",
     "settings_saved": "Perfil guardado.",
     "settings_view_public": "Tu perfil público:",
-    "resend_confirmation": "Reenviar el correo de confirmación"
+    "resend_confirmation": "Reenviar el correo de confirmación",
+    "passwords_mismatch": "Las contraseñas no coinciden.",
+    "signup_email_notice": "Enviaremos un enlace de confirmación desde una dirección automática \"noreply\" — revisa spam si no aparece."
   }
 }

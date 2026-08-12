@@ -213,7 +213,7 @@
     "to_signup": "회원가입",
     "have_account": "이미 계정이 있으신가요?",
     "to_signin": "로그인",
-    "notice_confirm_email": "이메일에서 계정을 확인한 뒤 로그인해주세요.",
+    "notice_confirm_email": "확인 메일을 보냈어요. 발신자가 낯설게 보일 수 있어요 (자동발송 noreply 주소, 제목 \"Confirm your signup\") — 안 보이면 스팸함도 확인해주세요. 메일에서 확인한 뒤 로그인해주세요.",
     "error_auth_failed": "로그인에 실패했어요. 다시 시도해주세요.",
     "signup_kicker": "회원가입",
     "signup_heading": "계정 만들기",
@@ -247,6 +247,8 @@
     "settings_save": "프로필 저장",
     "settings_saved": "프로필을 저장했어요.",
     "settings_view_public": "공개 프로필:",
-    "resend_confirmation": "확인 메일 다시 보내기"
+    "resend_confirmation": "확인 메일 다시 보내기",
+    "passwords_mismatch": "비밀번호가 일치하지 않아요.",
+    "signup_email_notice": "확인 링크를 자동발송 noreply 주소로 보내드려요 — 안 보이면 스팸함도 확인해주세요."
   }
 }
