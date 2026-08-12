@@ -8,7 +8,9 @@
     "signIn": "로그인",
     "signOut": "로그아웃",
     "theme": "테마 전환",
-    "menu": "메뉴"
+    "menu": "메뉴",
+    "settings": "설정",
+    "completeProfile": "프로필 완성하기"
   },
   "hero": {
     "line1": "Create.",

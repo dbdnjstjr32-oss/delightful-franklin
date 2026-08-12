@@ -8,7 +8,9 @@
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
     "theme": "Cambiar tema",
-    "menu": "Menú"
+    "menu": "Menú",
+    "settings": "Ajustes",
+    "completeProfile": "Completa tu perfil"
   },
   "hero": {
     "line1": "Crea.",

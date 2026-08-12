@@ -2,6 +2,10 @@
 
 # dependencies
 /node_modules
+# The MCP server is its own package with its own install and build output.
+# The root entries here are anchored to the repo root and would miss these.
+/mcp/node_modules
+/mcp/dist
 /.pnp
 .pnp.*
 .yarn/*
