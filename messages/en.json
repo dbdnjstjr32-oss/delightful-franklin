@@ -213,7 +213,7 @@
     "to_signup": "Sign up",
     "have_account": "Already have an account?",
     "to_signin": "Sign in",
-    "notice_confirm_email": "Check your email to confirm your account, then sign in.",
+    "notice_confirm_email": "We sent a confirmation email. The sender may look unfamiliar (an automated \"noreply\" address, subject \"Confirm your signup\") — check your spam folder if it does not show up. Confirm it, then sign in.",
     "error_auth_failed": "Sign-in failed. Please try again.",
     "signup_kicker": "Sign up",
     "signup_heading": "Create an account",
@@ -247,6 +247,8 @@
     "settings_save": "Save profile",
     "settings_saved": "Profile saved.",
     "settings_view_public": "Your public profile:",
-    "resend_confirmation": "Send the confirmation email again"
+    "resend_confirmation": "Send the confirmation email again",
+    "passwords_mismatch": "Passwords do not match.",
+    "signup_email_notice": "We'll email a confirmation link from an automated \"noreply\" address — check spam if it does not show up."
   }
 }

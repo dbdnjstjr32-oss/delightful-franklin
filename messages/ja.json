@@ -213,7 +213,7 @@
     "to_signup": "新規登録",
     "have_account": "すでにアカウントをお持ちですか？",
     "to_signin": "ログイン",
-    "notice_confirm_email": "メールでアカウントを確認してからログインしてください。",
+    "notice_confirm_email": "確認メールを送信しました。差出人が見慣れない自動送信アドレス（件名 \"Confirm your signup\"）に見えることがあります — 届かない場合は迷惑メールフォルダもご確認ください。確認後にログインしてください。",
     "error_auth_failed": "ログインに失敗しました。もう一度お試しください。",
     "signup_kicker": "新規登録",
     "signup_heading": "アカウントを作成",
@@ -247,6 +247,8 @@
     "settings_save": "プロフィールを保存",
     "settings_saved": "プロフィールを保存しました。",
     "settings_view_public": "公開プロフィール:",
-    "resend_confirmation": "確認メールを再送する"
+    "resend_confirmation": "確認メールを再送する",
+    "passwords_mismatch": "パスワードが一致しません。",
+    "signup_email_notice": "確認リンクは自動送信の \"noreply\" アドレスから届きます — 届かない場合は迷惑メールフォルダをご確認ください。"
   }
 }
