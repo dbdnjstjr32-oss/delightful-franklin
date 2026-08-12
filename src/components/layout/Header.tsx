@@ -5,7 +5,16 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Globe, Upload, User, LayoutDashboard, LogOut, Menu, Check } from 'lucide-react'
+import {
+  Globe,
+  Upload,
+  User,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Check,
+  Settings,
+} from 'lucide-react'
 import { signOut } from '@/features/auth/actions'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { routing } from '@/i18n/routing'
@@ -173,15 +182,29 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
                   <LayoutDashboard size={15} aria-hidden />
                   {t('dashboard')}
                 </DropdownMenuItem>
-                {user.username && (
-                  <DropdownMenuItem
-                    className="py-2"
-                    render={<Link href={`/${locale}/u/${user.username}`} />}
-                  >
-                    <User size={15} aria-hidden />
-                    {t('profile')}
-                  </DropdownMenuItem>
-                )}
+                {/* No username means the account came from OAuth and has not
+                    been through onboarding — there is no public profile to
+                    link to yet, so point at the form that creates one rather
+                    than hiding the entry and leaving no way through. */}
+                <DropdownMenuItem
+                  className="py-2"
+                  render={
+                    <Link
+                      href={
+                        user.username
+                          ? `/${locale}/u/${user.username}`
+                          : `/${locale}/onboarding`
+                      }
+                    />
+                  }
+                >
+                  <User size={15} aria-hidden />
+                  {user.username ? t('profile') : t('completeProfile')}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="py-2" render={<Link href={`/${locale}/settings`} />}>
+                  <Settings size={15} aria-hidden />
+                  {t('settings')}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {/* Kept as a form submit: signOut() resolves the redirect
                     locale from the request referer. */}
@@ -244,6 +267,26 @@ export function Header({ locale, user }: { locale: string; user: HeaderUser | nu
                       className="rounded-md px-3 py-3 font-display text-2xl tracking-tightest text-foreground transition-colors hover:bg-secondary"
                     >
                       {t('dashboard')}
+                    </SheetClose>
+                    <SheetClose
+                      render={
+                        <Link
+                          href={
+                            user.username
+                              ? `/${locale}/u/${user.username}`
+                              : `/${locale}/onboarding`
+                          }
+                        />
+                      }
+                      className="rounded-md px-3 py-3 font-display text-2xl tracking-tightest text-foreground transition-colors hover:bg-secondary"
+                    >
+                      {user.username ? t('profile') : t('completeProfile')}
+                    </SheetClose>
+                    <SheetClose
+                      render={<Link href={`/${locale}/settings`} />}
+                      className="rounded-md px-3 py-3 font-display text-2xl tracking-tightest text-foreground transition-colors hover:bg-secondary"
+                    >
+                      {t('settings')}
                     </SheetClose>
                   </>
                 ) : (

@@ -8,7 +8,9 @@
     "signIn": "ログイン",
     "signOut": "ログアウト",
     "theme": "テーマ切り替え",
-    "menu": "メニュー"
+    "menu": "メニュー",
+    "settings": "設定",
+    "completeProfile": "プロフィールを完成"
   },
   "hero": {
     "line1": "Create.",
