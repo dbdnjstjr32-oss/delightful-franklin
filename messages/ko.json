@@ -137,7 +137,7 @@
     "files_help": "작업 과정, 클립, 결과물 자체. 작품 페이지에 이 순서로 나옵니다.",
     "files_drop": "파일을 끌어다 놓거나 눌러서 고르세요",
     "files_full": "파일은 {max}개까지예요",
-    "files_types": "이미지, 영상, 오디오, PDF, ZIP · 각 {size} 이하",
+    "files_types": "이미지, 영상, 오디오, PDF, ZIP, HTML · 각 {size} 이하",
     "file_unsupported": "지원하지 않는 형식이에요.",
     "file_failed": "업로드에 실패했어요.",
     "file_too_large": "너무 커요 — {size}까지예요.",
@@ -180,7 +180,8 @@
     "layout_deck": "데크",
     "layout_deck_hint": "번호가 붙은 슬라이드를 같은 틀로. 발표자료·데모 스샷용.",
     "layout_case_study": "케이스 스터디",
-    "layout_case_study_hint": "이미지와 설명을 좌우로 번갈아. 글로 풀어내는 작업기용."
+    "layout_case_study_hint": "이미지와 설명을 좌우로 번갈아. 글로 풀어내는 작업기용.",
+    "html_sandbox_note": "정적 미리보기예요 — 이 파일 안의 스크립트는 실행되지 않아요."
   },
   "errors": {
     "not_authenticated": "로그인이 필요합니다.",

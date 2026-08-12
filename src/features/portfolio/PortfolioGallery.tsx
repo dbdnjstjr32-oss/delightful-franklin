@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { Download, FileText } from 'lucide-react'
 import { useReveal } from '@/lib/motion'
-import { formatBytes, type UploadedAsset } from '@/lib/uploads'
+import { formatBytes, isHtmlMime, type UploadedAsset } from '@/lib/uploads'
 import { aspectRatio, parseLayout, type Layout } from '@/lib/presentation'
 
 /** One attachment, framed as the creator asked.
@@ -79,6 +79,33 @@ function Asset({ asset, fill = false }: { asset: UploadedAsset; fill?: boolean }
 
   if (asset.kind === 'audio') {
     return <audio controls preload="metadata" className="w-full" src={asset.url} />
+  }
+
+  if (isHtmlMime(asset.mime_type)) {
+    return (
+      <div className="space-y-2">
+        <div
+          className="w-full overflow-hidden rounded-md border border-border bg-white"
+          style={{ aspectRatio: aspectRatio(asset.ratio ?? '16:9') }}
+        >
+          {/* Sandboxed with `allow-same-origin` only — no `allow-scripts`,
+              `allow-forms`, or `allow-popups`. Embedded JS in an uploaded HTML
+              file never runs for a visitor; this is what makes text/html safe
+              to accept at all (see 0009_html_attachments.sql). A creator whose
+              export needs script to render anything will see a blank frame,
+              which is the deliberate trade-off, not a bug. */}
+          <iframe
+            src={asset.url}
+            title={asset.caption || t('attachment_fallback')}
+            sandbox="allow-same-origin"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="size-full"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">{t('html_sandbox_note')}</p>
+      </div>
+    )
   }
 
   return (
@@ -173,7 +200,10 @@ export function PortfolioGallery({
               {assets.map((asset) => (
                 <li key={asset.storage_path || asset.url} className="space-y-3">
                   <Asset asset={asset} />
-                  {asset.caption && asset.kind !== 'file' && (
+                  {/* A plain file (PDF/ZIP) already shows its caption as the
+                      download row's own label; HTML renders in a framed box
+                      like an image, so its caption needs the same line below. */}
+                  {asset.caption && (asset.kind !== 'file' || isHtmlMime(asset.mime_type)) && (
                     <p className="text-sm text-muted-foreground">{asset.caption}</p>
                   )}
                 </li>
