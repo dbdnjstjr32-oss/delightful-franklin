@@ -251,6 +251,15 @@
     "settings_view_public": "공개 프로필:",
     "resend_confirmation": "확인 메일 다시 보내기",
     "passwords_mismatch": "비밀번호가 일치하지 않아요.",
-    "signup_email_notice": "확인 링크를 자동발송 noreply 주소로 보내드려요 — 안 보이면 스팸함도 확인해주세요."
+    "signup_email_notice": "확인 링크를 자동발송 noreply 주소로 보내드려요 — 안 보이면 스팸함도 확인해주세요.",
+    "mcp_title": "Claude / MCP 연결",
+    "mcp_body": "Showcase MCP 서버를 연결하면 에디터에서 Claude가 작품을 검색하고 내 작품을 관리할 수 있어요. 아래 토큰이 필요해요.",
+    "mcp_reveal": "내 토큰 보기",
+    "mcp_hide": "숨기기",
+    "mcp_copy": "토큰 복사",
+    "mcp_copied": "복사됨",
+    "mcp_copy_failed": "토큰을 복사하지 못했어요.",
+    "mcp_no_session": "활성 세션이 없어요. 다시 로그인한 뒤 시도해주세요.",
+    "mcp_warning": "이 토큰은 계정 전체 권한을 가져요. 본인 MCP 설정에만 붙여넣으세요 — 공유하거나 채팅·스크린샷에 넣지 마세요."
   }
 }

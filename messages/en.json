@@ -251,6 +251,15 @@
     "settings_view_public": "Your public profile:",
     "resend_confirmation": "Send the confirmation email again",
     "passwords_mismatch": "Passwords do not match.",
-    "signup_email_notice": "We'll email a confirmation link from an automated \"noreply\" address — check spam if it does not show up."
+    "signup_email_notice": "We'll email a confirmation link from an automated \"noreply\" address — check spam if it does not show up.",
+    "mcp_title": "Claude / MCP access",
+    "mcp_body": "Connect the Showcase MCP server so Claude can search works and manage your own from your editor. It needs the token below.",
+    "mcp_reveal": "Show my token",
+    "mcp_hide": "Hide",
+    "mcp_copy": "Copy token",
+    "mcp_copied": "Copied",
+    "mcp_copy_failed": "Could not copy the token.",
+    "mcp_no_session": "No active session found. Sign in again and retry.",
+    "mcp_warning": "This token grants full access to your account. Paste it only into your own MCP config — never share it, and never paste it into a chat or a screenshot."
   }
 }

@@ -251,6 +251,15 @@
     "settings_view_public": "公開プロフィール:",
     "resend_confirmation": "確認メールを再送する",
     "passwords_mismatch": "パスワードが一致しません。",
-    "signup_email_notice": "確認リンクは自動送信の \"noreply\" アドレスから届きます — 届かない場合は迷惑メールフォルダをご確認ください。"
+    "signup_email_notice": "確認リンクは自動送信の \"noreply\" アドレスから届きます — 届かない場合は迷惑メールフォルダをご確認ください。",
+    "mcp_title": "Claude / MCP 連携",
+    "mcp_body": "Showcase MCP サーバーを繋ぐと、エディタから Claude が作品を検索したり自分の作品を管理できます。下のトークンが必要です。",
+    "mcp_reveal": "トークンを表示",
+    "mcp_hide": "隠す",
+    "mcp_copy": "トークンをコピー",
+    "mcp_copied": "コピーしました",
+    "mcp_copy_failed": "トークンをコピーできませんでした。",
+    "mcp_no_session": "有効なセッションがありません。ログインし直してからお試しください。",
+    "mcp_warning": "このトークンはアカウント全体の権限を持ちます。自分の MCP 設定にのみ貼り付けてください — 共有したり、チャットやスクリーンショットに載せないでください。"
   }
 }
