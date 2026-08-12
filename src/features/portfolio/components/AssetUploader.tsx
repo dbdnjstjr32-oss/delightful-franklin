@@ -198,6 +198,28 @@ export function AssetUploader({
     setItems((current) => current.filter((it) => it.id !== item.id))
   }
 
+  /** Retry re-runs the same type/size gate `addFiles` applies to a new drop.
+   *  Without this, retry called `start()` directly on the stored File and
+   *  skipped validation entirely — a file rejected as unsupported would go
+   *  straight to Storage on retry with no client-side check at all. Storage's
+   *  own `allowed_mime_types` still would have caught a genuinely disallowed
+   *  type, so this was a confusing UX bug rather than a security gap, but the
+   *  button should not behave differently from a fresh drop. */
+  function retryUpload(item: Item) {
+    if (!item.file) return
+    const file = item.file
+
+    if (!(ASSET_TYPES as readonly string[]).includes(file.type)) {
+      patch(item.id, { message: t('file_unsupported') })
+      return
+    }
+    if (file.size > MAX_ASSET_BYTES) {
+      patch(item.id, { message: t('file_too_large', { size: formatBytes(MAX_ASSET_BYTES) }) })
+      return
+    }
+    start(item.id, file)
+  }
+
   function move(index: number, delta: number) {
     setItems((current) => {
       const target = index + delta
@@ -370,7 +392,7 @@ export function AssetUploader({
                     <button
                       type="button"
                       aria-label={t('retry_aria', { name: item.name })}
-                      onClick={() => start(item.id, item.file!)}
+                      onClick={() => retryUpload(item)}
                       className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     >
                       <RotateCw size={14} aria-hidden />
