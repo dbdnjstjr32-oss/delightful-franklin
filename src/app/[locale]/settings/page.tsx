@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { ProfileSettingsForm } from '@/features/auth/components/ProfileSettingsForm'
+import { McpTokenPanel } from '@/features/auth/components/McpTokenPanel'
 
 export default async function SettingsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -49,6 +50,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
           </dt>
           <dd className="mt-1 text-sm text-muted-foreground">{t('settings_credentials_body')}</dd>
         </div>
+
+        <McpTokenPanel />
       </dl>
 
       {profile?.username && (

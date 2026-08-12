@@ -251,6 +251,15 @@
     "settings_view_public": "Tu perfil público:",
     "resend_confirmation": "Reenviar el correo de confirmación",
     "passwords_mismatch": "Las contraseñas no coinciden.",
-    "signup_email_notice": "Enviaremos un enlace de confirmación desde una dirección automática \"noreply\" — revisa spam si no aparece."
+    "signup_email_notice": "Enviaremos un enlace de confirmación desde una dirección automática \"noreply\" — revisa spam si no aparece.",
+    "mcp_title": "Acceso Claude / MCP",
+    "mcp_body": "Conecta el servidor MCP de Showcase para que Claude pueda buscar trabajos y gestionar los tuyos desde tu editor. Necesita el token de abajo.",
+    "mcp_reveal": "Mostrar mi token",
+    "mcp_hide": "Ocultar",
+    "mcp_copy": "Copiar token",
+    "mcp_copied": "Copiado",
+    "mcp_copy_failed": "No se pudo copiar el token.",
+    "mcp_no_session": "No hay sesión activa. Inicia sesión de nuevo e inténtalo.",
+    "mcp_warning": "Este token da acceso completo a tu cuenta. Pégalo solo en tu propia configuración MCP — no lo compartas ni lo pongas en un chat o una captura."
   }
 }
