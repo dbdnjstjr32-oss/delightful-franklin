@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import {
   ArrowDown,
   ArrowUp,
+  FileCode,
   FileText,
   Film,
   ImageIcon,
@@ -23,6 +24,7 @@ import {
   MAX_CAPTION_LEN,
   assetKind,
   formatBytes,
+  isHtmlMime,
   type AssetKind,
   type UploadedAsset,
 } from '@/lib/uploads'
@@ -51,6 +53,13 @@ const KIND_ICON: Record<AssetKind, typeof ImageIcon> = {
   video: Film,
   audio: Music,
   file: FileText,
+}
+
+/** HTML shares the generic 'file' kind (no DB migration for a one-off), but
+ *  gets its own icon and — unlike a PDF or ZIP — a ratio picker, since it
+ *  renders in a framed box on the work page rather than as a download row. */
+function isHtml(item: Pick<Item, 'asset' | 'file'>): boolean {
+  return isHtmlMime(item.asset?.mime_type ?? item.file?.type)
 }
 
 /** Turn a saved row back into a settled item, so editing a work shows what is
@@ -189,6 +198,28 @@ export function AssetUploader({
     setItems((current) => current.filter((it) => it.id !== item.id))
   }
 
+  /** Retry re-runs the same type/size gate `addFiles` applies to a new drop.
+   *  Without this, retry called `start()` directly on the stored File and
+   *  skipped validation entirely — a file rejected as unsupported would go
+   *  straight to Storage on retry with no client-side check at all. Storage's
+   *  own `allowed_mime_types` still would have caught a genuinely disallowed
+   *  type, so this was a confusing UX bug rather than a security gap, but the
+   *  button should not behave differently from a fresh drop. */
+  function retryUpload(item: Item) {
+    if (!item.file) return
+    const file = item.file
+
+    if (!(ASSET_TYPES as readonly string[]).includes(file.type)) {
+      patch(item.id, { message: t('file_unsupported') })
+      return
+    }
+    if (file.size > MAX_ASSET_BYTES) {
+      patch(item.id, { message: t('file_too_large', { size: formatBytes(MAX_ASSET_BYTES) }) })
+      return
+    }
+    start(item.id, file)
+  }
+
   function move(index: number, delta: number) {
     setItems((current) => {
       const target = index + delta
@@ -257,7 +288,7 @@ export function AssetUploader({
       {items.length > 0 && (
         <ul className="divide-y divide-border rounded-md border border-border">
           {items.map((item, index) => {
-            const Icon = KIND_ICON[item.kind]
+            const Icon = isHtml(item) ? FileCode : KIND_ICON[item.kind]
             return (
               <li key={item.id} className="flex items-start gap-3 p-3">
                 <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded bg-secondary">
@@ -318,8 +349,9 @@ export function AssetUploader({
                         className="mt-2 h-8"
                       />
                       {/* Framing only applies to what the page renders in a box;
-                          a download row has no shape to constrain. */}
-                      {item.kind !== 'file' && (
+                          a download row has no shape to constrain. HTML is the
+                          one 'file'-kind exception — it renders in a box too. */}
+                      {(item.kind !== 'file' || isHtml(item)) && (
                         <RatioPicker
                           size="compact"
                           label={t('ratio_asset_aria', { name: item.name })}
@@ -360,7 +392,7 @@ export function AssetUploader({
                     <button
                       type="button"
                       aria-label={t('retry_aria', { name: item.name })}
-                      onClick={() => start(item.id, item.file!)}
+                      onClick={() => retryUpload(item)}
                       className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     >
                       <RotateCw size={14} aria-hidden />

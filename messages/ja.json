@@ -139,7 +139,7 @@
     "files_help": "制作過程、クリップ、成果物そのもの。作品ページにこの順で表示されます。",
     "files_drop": "ファイルをドロップ、またはクリックして選択",
     "files_full": "ファイルは {max} 個までです",
-    "files_types": "画像・動画・音声・PDF・ZIP · 各 {size} まで",
+    "files_types": "画像・動画・音声・PDF・ZIP・HTML · 各 {size} まで",
     "file_unsupported": "対応していない形式です。",
     "file_failed": "アップロードに失敗しました。",
     "file_too_large": "大きすぎます — {size} までです。",
@@ -182,7 +182,8 @@
     "layout_deck": "デッキ",
     "layout_deck_hint": "番号付きスライドを揃った枠で。プレゼン資料やデモ画面向け。",
     "layout_case_study": "ケーススタディ",
-    "layout_case_study_hint": "画像と説明を左右交互に。文章で辿る制作記録向け。"
+    "layout_case_study_hint": "画像と説明を左右交互に。文章で辿る制作記録向け。",
+    "html_sandbox_note": "静的プレビューです — このファイル内のスクリプトは実行されません。"
   },
   "errors": {
     "not_authenticated": "ログインが必要です。",

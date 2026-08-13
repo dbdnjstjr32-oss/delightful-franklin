@@ -13,7 +13,13 @@ export const COVER_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'imag
  *  Keep both lists in step.
  *
  *  No image/svg+xml: an SVG carries script, and these objects are served from a
- *  public bucket under their own origin. */
+ *  public bucket under their own origin.
+ *
+ *  text/html is admitted for presentation exports (reveal.js decks,
+ *  Figma/Keynote "export as HTML"), on the strength of PortfolioGallery
+ *  rendering it in a sandboxed iframe with no `allow-scripts` — embedded JS
+ *  never runs for a visitor. Don't add this type back to a surface that
+ *  doesn't sandbox equally hard. */
 export const ASSET_TYPES = [
   ...COVER_IMAGE_TYPES,
   'image/avif',
@@ -25,6 +31,7 @@ export const ASSET_TYPES = [
   'audio/ogg',
   'application/pdf',
   'application/zip',
+  'text/html',
 ] as const
 
 export const MAX_COVER_BYTES = 10 * 1024 * 1024 // 10MB
@@ -41,6 +48,14 @@ export function assetKind(mimeType: string): AssetKind {
   if (mimeType.startsWith('video/')) return 'video'
   if (mimeType.startsWith('audio/')) return 'audio'
   return 'file'
+}
+
+/** HTML attachments share the generic 'file' kind at the data layer (kept
+ *  there rather than adding a DB enum value for one type), but render
+ *  differently everywhere that matters — a framed, sandboxed preview instead
+ *  of a download row. This is the one place that distinction is drawn from. */
+export function isHtmlMime(mimeType: string | undefined | null): boolean {
+  return mimeType === 'text/html'
 }
 
 /** What the uploader hands to the form, and what the server re-validates before
@@ -73,6 +88,7 @@ const EXTENSIONS: Record<string, string> = {
   'audio/ogg': 'ogg',
   'application/pdf': 'pdf',
   'application/zip': 'zip',
+  'text/html': 'html',
 }
 
 /** Extension for a storage key. Derived from the MIME type rather than the

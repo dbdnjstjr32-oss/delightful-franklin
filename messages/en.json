@@ -139,7 +139,7 @@
     "files_help": "Process shots, clips, or the deliverable itself. They appear on the work page in this order.",
     "files_drop": "Drop files here, or click to choose",
     "files_full": "{max} files is the limit",
-    "files_types": "Images, video, audio, PDF or ZIP · up to {size} each",
+    "files_types": "Images, video, audio, PDF, ZIP or HTML · up to {size} each",
     "file_unsupported": "Unsupported file type.",
     "file_failed": "Upload failed.",
     "file_too_large": "Too large — {size} is the limit.",
@@ -182,7 +182,8 @@
     "layout_deck": "Deck",
     "layout_deck_hint": "Numbered slides in even frames — for presentations and demo shots.",
     "layout_case_study": "Case study",
-    "layout_case_study_hint": "Media alternating beside its caption, for a written walkthrough."
+    "layout_case_study_hint": "Media alternating beside its caption, for a written walkthrough.",
+    "html_sandbox_note": "Static preview — scripts in this file do not run."
   },
   "errors": {
     "not_authenticated": "Not authenticated.",

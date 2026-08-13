@@ -139,7 +139,7 @@
     "files_help": "Capturas del proceso, clips o la entrega misma. Aparecen en la página del trabajo en este orden.",
     "files_drop": "Suelta archivos aquí o haz clic para elegir",
     "files_full": "El límite es de {max} archivos",
-    "files_types": "Imágenes, video, audio, PDF o ZIP · hasta {size} cada uno",
+    "files_types": "Imágenes, video, audio, PDF, ZIP o HTML · hasta {size} cada uno",
     "file_unsupported": "Tipo de archivo no admitido.",
     "file_failed": "La subida falló.",
     "file_too_large": "Demasiado grande — el límite es {size}.",
@@ -182,7 +182,8 @@
     "layout_deck": "Presentación",
     "layout_deck_hint": "Diapositivas numeradas en marcos iguales — para presentaciones y capturas.",
     "layout_case_study": "Caso de estudio",
-    "layout_case_study_hint": "Medios alternando junto a su leyenda, para un recorrido escrito."
+    "layout_case_study_hint": "Medios alternando junto a su leyenda, para un recorrido escrito.",
+    "html_sandbox_note": "Vista previa estática — los scripts de este archivo no se ejecutan."
   },
   "errors": {
     "not_authenticated": "No has iniciado sesión.",

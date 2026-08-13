@@ -32,6 +32,12 @@ function buildCsp(nonce: string): string {
     `img-src 'self' blob: data: ${supabaseHttp}`.trim(),
     `font-src 'self'`,
     `connect-src 'self' ${supabaseHttp} ${supabaseWs}${devConnect}`.trim(),
+    // HTML attachments render in an iframe pointed at the storage bucket. With
+    // no frame-src, this falls back to `default-src 'self'` and the frame is
+    // blocked outright — the feature renders an empty box. The frame itself is
+    // sandboxed without allow-scripts (see PortfolioGallery), so permitting the
+    // storage origin here does not let uploaded markup execute anything.
+    `frame-src 'self' ${supabaseHttp}`.trim(),
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
