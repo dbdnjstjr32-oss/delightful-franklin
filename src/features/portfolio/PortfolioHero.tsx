@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Eye, ExternalLink } from 'lucide-react'
+import { aspectRatio } from '@/lib/presentation'
 
 interface Props {
   portfolio: {
@@ -10,6 +11,7 @@ interface Props {
     thumbnail_url: string | null
     thumbnail_width?: number | null
     thumbnail_height?: number | null
+    thumbnail_ratio?: string | null
     project_url: string | null
     category: string | null
     views: number
@@ -28,10 +30,14 @@ export function PortfolioHero({ portfolio, tags, locale, likeControl }: Props) {
     day: 'numeric',
   }).format(new Date(portfolio.created_at))
 
-  const ratio =
-    portfolio.thumbnail_width && portfolio.thumbnail_height
-      ? portfolio.thumbnail_width / portfolio.thumbnail_height
-      : 16 / 9
+  // The creator's chosen frame wins, then the file's own shape. With neither,
+  // the hero keeps its own 16:9 rather than the shared 4:3 fallback — this is a
+  // full-bleed banner, not a card.
+  const knownShape =
+    !!portfolio.thumbnail_ratio || !!(portfolio.thumbnail_width && portfolio.thumbnail_height)
+  const ratio = knownShape
+    ? aspectRatio(portfolio.thumbnail_ratio, portfolio.thumbnail_width, portfolio.thumbnail_height)
+    : '16 / 9'
 
   return (
     <section>
@@ -74,7 +80,16 @@ export function PortfolioHero({ portfolio, tags, locale, likeControl }: Props) {
         </div>
       </div>
 
-      <div className="relative w-full overflow-hidden bg-secondary" style={{ aspectRatio: ratio }}>
+      {/* Capped at 80vh. The cover is full-bleed, so without a ceiling its
+          height is just viewport width ÷ ratio — a 3:4 phone photo came out
+          ~1900px tall on a 1440px screen, and a 9:16 screenshot ~2500px, so the
+          cover alone was two screens before the reader reached anything else.
+          When the cap bites, the box is wider than its ratio and object-cover
+          crops it rather than letterboxing. */}
+      <div
+        className="relative max-h-[80vh] w-full overflow-hidden bg-secondary"
+        style={{ aspectRatio: ratio }}
+      >
         {portfolio.thumbnail_url ? (
           <Image
             src={portfolio.thumbnail_url}
